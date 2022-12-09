@@ -1,4 +1,9 @@
+# Default ignored files
+/.idea
+/.classpath
+/.project
 # Compiled class file
+/target/
 *.class
 
 # Log file
