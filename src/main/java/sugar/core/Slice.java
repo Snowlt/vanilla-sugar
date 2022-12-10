@@ -48,6 +48,212 @@ public class Slice {
     private int step;
     private int size;
 
+    /**
+     * 对列表进行切片操作
+     *
+     * @param <T>   元素类型(泛型)
+     * @param list  列表
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的列表
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static <T> List<T> slice(List<T> list, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, list.size());
+        ArrayList<T> ts = new ArrayList<>(slice.size);
+        slice.forEachIndex((i, n) -> ts.add(list.get(i)));
+        return ts;
+    }
+
+    /**
+     * 对集合对象进行切片操作(先转化为List在进行访问)
+     *
+     * @param <T>        元素类型(泛型)
+     * @param collection 集合
+     * @param start      起始下标(包含)
+     * @param stop       结束下标(不包含)
+     * @param step       步长(默认为1，不能为0)
+     * @return 新生成的列表
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static <T> Collection<T> slice(Collection<T> collection, Integer start, Integer stop, Integer step) {
+        List<T> list = collection instanceof List ? (List<T>) collection : new ArrayList<>(collection);
+        return slice(list, start, stop, step);
+    }
+
+    /**
+     * 对字符序列进行切片操作
+     *
+     * @param cs    字符序列
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 处理后生成的字符串
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static String slice(CharSequence cs, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, cs.length());
+        char[] chars = new char[slice.size];
+        slice.forEachIndex((i, n) -> chars[n] = cs.charAt(i));
+        return new String(chars);
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param <T>   元素类型(泛型)
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] slice(T[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        T[] a = (T[]) Array.newInstance(array.getClass().getComponentType(), slice.size);
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static byte[] slice(byte[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        byte[] a = new byte[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static short[] slice(short[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        short[] a = new short[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static int[] slice(int[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        int[] a = new int[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static long[] slice(long[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        long[] a = new long[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static float[] slice(float[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        float[] a = new float[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static double[] slice(double[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        double[] a = new double[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static char[] slice(char[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        char[] a = new char[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
+    /**
+     * 对数组进行切片操作
+     *
+     * @param array 数组
+     * @param start 起始下标(包含)
+     * @param stop  结束下标(不包含)
+     * @param step  步长(默认为1，不能为0)
+     * @return 新生成的数组
+     * @throws IllegalArgumentException 当步长为 0 时抛出
+     */
+    public static boolean[] slice(boolean[] array, Integer start, Integer stop, Integer step) {
+        Slice slice = new Slice(start, stop, step, array.length);
+        boolean[] a = new boolean[slice.size];
+        slice.forEachIndex((i, n) -> a[n] = array[i]);
+        return a;
+    }
+
     protected Slice() {
     }
 
@@ -82,164 +288,6 @@ public class Slice {
                         (this.step < 0 && (this.start <= stopExcluded || this.start < 0))
         ) size = 0;
         else size = Math.abs((stopIncluded - this.start) / this.step) + 1;
-    }
-
-    /**
-     * 对列表进行切片操作
-     *
-     * @param <T>  泛型
-     * @param list 列表
-     * @return 新生成的列表
-     */
-    public static <T> List<T> slice(List<T> list, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, list.size());
-        ArrayList<T> ts = new ArrayList<>(slice.size);
-        slice.forEachIndex((i, n) -> ts.add(list.get(i)));
-        return ts;
-    }
-
-    /**
-     * 对集合对象进行切片操作(先转化为List在进行访问)
-     *
-     * @param <T>        泛型
-     * @param collection 集合
-     * @return 新生成的列表
-     */
-    public static <T> Collection<T> slice(Collection<T> collection, Integer start, Integer stop, Integer step) {
-        List<T> list = collection instanceof List ? (List<T>) collection : new ArrayList<>(collection);
-        return slice(list, start, stop, step);
-    }
-
-    /**
-     * 对字符序列进行切片操作
-     *
-     * @param cs 字符序列
-     * @return 处理后生成的字符串
-     */
-    public static String slice(CharSequence cs, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, cs.length());
-        char[] chars = new char[slice.size];
-        slice.forEachIndex((i, n) -> chars[n] = cs.charAt(i));
-        return new String(chars);
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param <T>   泛型
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T[] slice(T[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        T[] a = (T[]) Array.newInstance(array.getClass().getComponentType(), slice.size);
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static byte[] slice(byte[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        byte[] a = new byte[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static short[] slice(short[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        short[] a = new short[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static int[] slice(int[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        int[] a = new int[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static long[] slice(long[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        long[] a = new long[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static float[] slice(float[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        float[] a = new float[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static double[] slice(double[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        double[] a = new double[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static char[] slice(char[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        char[] a = new char[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
-    }
-
-    /**
-     * 对数组进行切片操作
-     *
-     * @param array 数组
-     * @return 新生成的数组
-     */
-    public static boolean[] slice(boolean[] array, Integer start, Integer stop, Integer step) {
-        Slice slice = new Slice(start, stop, step, array.length);
-        boolean[] a = new boolean[slice.size];
-        slice.forEachIndex((i, n) -> a[n] = array[i]);
-        return a;
     }
 
     /**

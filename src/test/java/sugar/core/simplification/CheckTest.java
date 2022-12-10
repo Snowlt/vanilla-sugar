@@ -3,7 +3,9 @@ package sugar.core.simplification;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -217,6 +219,30 @@ class CheckTest {
             fail("Object should not be able to compare with array directly. Excepted: " + IllegalArgumentException.class.getName());
         } catch (IllegalArgumentException ignored) {
         }
+    }
+
+    @Test
+    void checkNumber() {
+        assertTrue(Check.isTrue((byte) -1));
+        assertTrue(Check.isTrue((short) -1));
+        assertTrue(Check.isTrue(-1));
+        assertTrue(Check.isTrue(-1L));
+        assertTrue(Check.isTrue(0.0000000001F));
+        assertTrue(Check.isTrue(0.0000000001));
+        assertFalse(Check.isTrue((byte) 0));
+        assertFalse(Check.isTrue((short) 0));
+        assertFalse(Check.isTrue(0));
+        assertFalse(Check.isTrue(0L));
+        assertFalse(Check.isTrue(0.00000000000F));
+        assertFalse(Check.isTrue(0.00000000000));
+        // special types
+        assertTrue(Check.isTrue(new BigInteger("-1")));
+        assertFalse(Check.isTrue(new BigInteger("0")));
+        assertTrue(Check.isTrue(new BigDecimal("-1.00002")));
+        assertTrue(Check.isTrue(new BigDecimal("-0.0000001")));
+        assertFalse(Check.isTrue(new BigDecimal("0.0000000")));
+        assertTrue(Check.isTrue(new AtomicInteger(1)));
+        assertFalse(Check.isTrue(new AtomicInteger(0)));
     }
 
     @SafeVarargs

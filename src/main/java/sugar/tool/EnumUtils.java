@@ -15,7 +15,7 @@ public class EnumUtils {
     /**
      * 检查对象是否为枚举
      *
-     * @param o 类
+     * @param o 任意对象
      * @return 是枚举返回 true，为 null 或者不是枚举返回 false
      */
     public static boolean isEnum(Object o) {
@@ -62,7 +62,7 @@ public class EnumUtils {
 
     /**
      * 将目标值转换为枚举，转换失败返回 null
-     * 推荐优先使用{@link #getEnum(Enum[], Object, Function)}
+     * <p><i>推荐优先使用{@link #getEnum(Enum[], Object, Function)}</i></p>
      *
      * @param <E>       枚举类型
      * @param <V>       值的类型
@@ -106,7 +106,7 @@ public class EnumUtils {
 
     /**
      * 尝试将枚举序号转为枚举
-     * 此方法不严格限制 enumClass 的 Class，只适用在一些需要绕过编译器的类型检查的场景，因此推荐优先使用 #{@link #fromOrdinal(Class, Integer, E)}
+     * <p>此方法接受任意类型的 {@link Class}，适用在一些需要绕过编译器的类型检查的场景，推荐优先使用 #{@link #fromOrdinal(Class, Integer, E)}</p>
      *
      * @param <E>          枚举类型（泛型）
      * @param enumClass    枚举的Class

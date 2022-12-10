@@ -2,6 +2,7 @@ package sugar.core.simplification;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.IntFunction;
 
@@ -20,9 +21,8 @@ public class Check {
 
     /**
      * 判断字符序列是否不为空
-     * 类似于 Python、JavaScript 的 if 语法
      *
-     * @param s 字符串
+     * @param s 字符序列
      * @return 判断结果
      */
     public static boolean notEmpty(CharSequence s) {
@@ -31,7 +31,6 @@ public class Check {
 
     /**
      * 判断集合是否不为空
-     * 类似于 Python、JavaScript 的 if 语法
      *
      * @param c 集合
      * @return 判断结果
@@ -42,7 +41,6 @@ public class Check {
 
     /**
      * 判断 Map 是否不为空
-     * 类似于 Python、JavaScript 的 if 语法
      *
      * @param map 集合
      * @return 判断结果
@@ -53,7 +51,6 @@ public class Check {
 
     /**
      * 判断数组长度是否不为 0
-     * 类似于 Python 的 if 语法
      *
      * @param array 数组
      * @return 判断结果
@@ -95,7 +92,6 @@ public class Check {
 
     /**
      * 判断字符序列是否为空
-     * 类似于 Python、JavaScript 的 if not exp / if (!exp)语法
      *
      * @param s 字符串
      * @return 判断结果
@@ -106,7 +102,6 @@ public class Check {
 
     /**
      * 判断集合是否为空
-     * 类似于 Python、JavaScript 的 if not exp / if (!exp) 语法
      *
      * @param c 集合
      * @return 判断结果
@@ -117,7 +112,6 @@ public class Check {
 
     /**
      * 判断 Map 是否为空
-     * 类似于 Python、JavaScript 的 if not exp / if (!exp) 语法
      *
      * @param map 集合
      * @return 判断结果
@@ -128,7 +122,6 @@ public class Check {
 
     /**
      * 判断数组长度是否为 0
-     * 类似于 Python 的 if not 语法
      *
      * @param array 数组
      * @return 判断结果
@@ -170,7 +163,6 @@ public class Check {
 
     /**
      * 判断布尔值是否等于 true
-     * 类似于 Python、.Net 的 if 语法
      *
      * @param b 布尔值
      * @return 判断结果
@@ -192,22 +184,37 @@ public class Check {
 
     /**
      * 判断数字是否不等于 0
-     * 如果用于是比较 float / double 等浮点数计算结果，建议用避免精度问题
+     * <p>备注：如果是用于比较 float / double 等浮点数计算结果，建议使用 {@link BigDecimal} 替代以避免精度问题</p>
      *
      * @param n 数字
      * @return 判断结果
      */
     public static boolean isTrue(Number n) {
         if (n == null) return false;
-        return isIntegerType(n) ? n.longValue() != 0 : n.doubleValue() != 0.0;
+        if (n instanceof BigDecimal) return BigDecimal.ZERO.compareTo((BigDecimal) n) != 0;
+        if (n instanceof BigInteger) return BigInteger.ZERO.compareTo((BigInteger) n) != 0;
+        return n.doubleValue() != 0.0;
     }
 
     /**
-     * 判断条件是否成立，会自动针对不同的类型进行处理（参考其他重载）
-     * 类似于 Python、.Net 的 if 语法
+     * 判断传入的值是否等效于 true
+     * <p>会自动根据传入类型和值进行判断，返回结果有以下情况：
+     * <ol>
+     *     <li>{@code null} 值: 总是返回 false</li>
+     *     <li>{@link Boolean} 布尔值: 总是返回自身</li>
+     *     <li>{@link CharSequence} / {@link Collection} / {@link Map} / 数组:
+     *     长度不为空时返回 true，否则返回 false</li>
+     *     <li>{@link Number} 数字: 不等于 0 返回 true，等于 0 返回 false</li>
+     *     <li>{@link Iterable} 可迭代对象: {@link Iterable#iterator()}
+     *     的迭代器没有到达末尾时返回 true，否则返回 false</li>
+     *     <li>{@link Iterator} 迭代器: 没有到达末尾时返回 true，否则返回 false(同 {@link Iterator#hasNext()})</li>
+     *     <li>{@link Character} 字符: ASCII 码不等于 0 返回 true，否则返回 false(见 {@link #isTrue(Character)})</li>
+     *     <li>{@link Optional}: 容器不为空返回 true，否则返回 false(同 {@link Optional#isPresent()})</li>
+     *     <li>其他情况: 总是返回 true</li>
+     * </ol></p>
      *
      * @param o 被检测对象
-     * @return 满足条件返回 true
+     * @return 值等效于 true 且不为 null 时返回 true
      */
     public static boolean isTrue(Object o) {
         if (o == null) return false;
@@ -226,11 +233,16 @@ public class Check {
     }
 
     /**
-     * 对左右两侧的值进行异或运算
+     * 对左右两侧的值调用 {@code isTrue()} 后进行异或运算
+     * <ul>
+     *      <li>如果左、右值的 isTrue() 结果不相同，则返回 true</li>
+     *      <li>如果左、右值的 isTrue() 结果相同，则返回 false</li>
+     * </ul>
      *
      * @param left  左值
      * @param right 右值
      * @return 异或运算结果
+     * @see #isTrue(Object)
      * @see Boolean#logicalXor(boolean, boolean)
      */
     public static boolean xor(Object left, Object right) {
@@ -238,78 +250,81 @@ public class Check {
     }
 
     /**
-     * 判断是否所有条件都成立
+     * 判断所有值是否都等效于 true
      * <pre>
-     *     allTrue(条件1, 条件2, ...)
-     *     等同于： isTrue(条件1) && isTrue(条件2) && ...
+     *     allTrue(值1, 值2, ...)
+     *     等同于： isTrue(值1) && isTrue(值2) && ...
      * </pre>
      *
-     * @param conditions 判断条件
-     * @return 所有条件都成立时返回 true
+     * @param targets 要判断的值
+     * @return 所有值都等效于 true 时返回 true
+     * @see #isTrue(Object)
      */
-    public static boolean allTrue(Object... conditions) {
-        if (conditions == null || conditions.length == 0) return false;
-        for (Object condition : conditions) {
+    public static boolean allTrue(Object... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (Object condition : targets) {
             if (!isTrue(condition)) return false;
         }
         return true;
     }
 
     /**
-     * 判断是否有任意一个条件成立
+     * 判断是否有任意一个值等效于 true
      * <pre>
-     *     anyTrue(条件1, 条件2, ...)
-     *     等同于： isTrue(条件1) || isTrue(条件2) || ...
+     *     anyTrue(值1, 值2, ...)
+     *     等同于： isTrue(值1) || isTrue(值2) || ...
      * </pre>
      *
-     * @param conditions 判断条件
-     * @return 有任意一个条件成立时返回 true
+     * @param targets 要判断的值
+     * @return 有任意一个值等效于 true 时返回 true
+     * @see #isTrue(Object)
      */
-    public static boolean anyTrue(Object... conditions) {
-        if (conditions == null || conditions.length == 0) return false;
-        for (Object condition : conditions) {
+    public static boolean anyTrue(Object... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (Object condition : targets) {
             if (isTrue(condition)) return true;
         }
         return false;
     }
 
     /**
-     * 判断是否所有条件都不成立
+     * 判断所有值是否都不等效于 true
      * <pre>
-     *     noneTrue(条件1, 条件2, ...)
-     *     等同于： !isTrue(条件1) || !isTrue(条件2) || ...
+     *     noneTrue(值1, 值2, ...)
+     *     等同于： !isTrue(值1) || !isTrue(值2) || ...
      * </pre>
      *
-     * @param conditions 判断条件
-     * @return 有任意一个条件成立时返回 true
+     * @param targets 要判断的值
+     * @return 所有值都不等效于 true 时返回 true
+     * @see #isTrue(Object)
      */
-    public static boolean noneTrue(Object... conditions) {
-        return !anyTrue(conditions);
+    public static boolean noneTrue(Object... targets) {
+        return !anyTrue(targets);
     }
 
     /**
-     * 判断是否所有对象都为空
+     * 判断所有对象是否都为 null
      *
-     * @param conditions 判断的对象
-     * @return 所有对象都为空时返回 true
+     * @param targets 判断的对象
+     * @return 所有对象都为 null 时返回 true
      */
-    public static boolean allNull(Object... conditions) {
-        if (conditions == null || conditions.length == 0) return false;
-        for (Object condition : conditions) {
+    public static boolean allNull(Object... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (Object condition : targets) {
             if (condition != null) return false;
         }
         return true;
     }
 
     /**
-     * 判断是否有任意一个对象为空
+     * 判断是否有任意一个对象为 null
      *
-     * @param conditions 判断的对象
-     * @return 有任意对象为空时返回 true
+     * @param targets 判断的对象
+     * @return 有任意对象为 null 时返回 true
      */
-    public static boolean anyNull(Object... conditions) {
-        if (conditions == null || conditions.length == 0) return false;
-        for (Object condition : conditions) {
+    public static boolean anyNull(Object... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (Object condition : targets) {
             if (condition == null) return true;
         }
         return false;
@@ -318,11 +333,11 @@ public class Check {
     /**
      * 判断所有对象是否都不为空
      *
-     * @param conditions 判断的对象
+     * @param targets 判断的对象
      * @return 所有对象都不为空时返回 true
      */
-    public static boolean noneNull(Object... conditions) {
-        return !anyNull(conditions);
+    public static boolean noneNull(Object... targets) {
+        return !anyNull(targets);
     }
 
     /**
@@ -516,16 +531,16 @@ public class Check {
 
     /**
      * 判断两个对象的内容是否相同，会根据类型自动匹配调用以下方法：
-     * <ul>
+     * <ol>
      *     <li>{@link #equals(Number, Number)}</li>
      *     <li>{@link #equals(CharSequence, CharSequence)}</li>
      *     <li>{@link #contentEqualsAsNumber(Number, CharSequence)} 和 {@link #contentEqualsAsNumber(CharSequence, Number)}</li>
      *     <li>{@link #contentEquals(CharSequence, char[])} 和 {@link #contentEquals(char[], CharSequence)}</li>
      *     <li>{@link #contentEqualsAsChar(Character, Object)} </li>
-     * </ul>
+     * </ol>
      * 如果匹配不到以上方法，则会调用 {@link Object#equals(Object)} 作为结果
      * <p>
-     * <i>如果需要判断集合内元素，请使用 {@link #contentEqualsAsCollection(Collection, Collection)}</i>
+     * <i>如果需要判断两个集合的内容是否相同，请使用 {@link #contentEqualsAsCollection(Collection, Collection)}</i>
      * </p>
      *
      * @param left  任意对象
@@ -561,7 +576,7 @@ public class Check {
     }
 
     /**
-     * 将左右侧的 Collection 当作 Set，判断内容是否相同（通过 {@link Object#equals(Object)} 判断）
+     * 将左右侧的 Collection 当作 Set，判断内容是否相同（元素通过 {@link Object#equals(Object)} 判断）
      * <pre>
      * 例如有如下情况：
      *      contentEquals({"A", "B"}, {"B", "A"}) -> true
@@ -569,7 +584,7 @@ public class Check {
      *      contentEquals({"A", "B"}, {"A", "B", "C"}) -> false
      *      contentEquals({"A", "B", "C"}, {"A", "B", "B"}) -> false
      * </pre>
-     * <i>比较不同类型的 Set 可能会出现歧义，所以内部不使用 {@link #contentEquals(Object, Object)} 比较</i>
+     * <i>比较不同类型的 Set 可能会出现歧义，所以集合内的元素使用 {@link Object#equals(Object)} 互相比较</i>
      *
      * @return 两者内容相同时返回 true
      */
@@ -583,7 +598,8 @@ public class Check {
 
     /**
      * 判断左侧和右侧集合中，对应位置的元素内容是否相同
-     * 在遇到元素类型不一致时会尝试自动转换对象的类型再判断（通过 {@link #contentEquals(Object, Object)} 判断）
+     * <p>在遇到元素类型不一致时会尝试自动转换对象的类型再判断（集合内的元素使用
+     * {@link #contentEquals(Object, Object)} 互相比较）</p>
      *
      * <pre>
      * 例如有如下情况：

@@ -2,7 +2,8 @@ package sugar.core.simplification;
 
 /**
  * 辅助转换的工具
- * <p>提供类似于 .Net 中 System.Convert 的相关方法</p>
+ * <p>可根据入参的类型和值，自动转换为其他类型</p>
+ * 设计参考自 C/C++ 中的基本类型转换 和 .Net 中 System.Convert 的相关方法
  *
  * @author SnowLT
  * @version 1.4
@@ -12,6 +13,7 @@ public class Convert {
 
     /**
      * 转换到整型，转换失败时返回 0
+     * <p>等效于 {@code toInt(value, 0)}</p>
      *
      * @param value 值
      * @return 转换后的结果
@@ -22,26 +24,37 @@ public class Convert {
 
     /**
      * 转换到整型
+     * <p>
+     * 根据 value 类型不同，返回结果有以下情况：
+     *  <ol>
+     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>Number: 返回强制转换为 int 后的值</li>
+     *  <li>Boolean: true 返回 1，false 返回 0</li>
+     *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
+     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  </ol>
+     * </p>
      *
-     * @param value 值
-     * @param def   转换失败时，返回的默认值
+     * @param value        值
+     * @param defaultValue 转换失败时，返回的默认值
      * @return 转换后的结果
      */
-    public static Integer toInt(Object value, Integer def) {
-        if (value == null) return def;
+    public static Integer toInt(Object value, Integer defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Integer) return (Integer) value;
         if (value instanceof Number) return ((Number) value).intValue();
-        if (value instanceof Boolean) return (Boolean) value ? 1 : 0;
+        if (value instanceof Boolean) return (boolean) value ? 1 : 0;
         if (value instanceof Character) return (int) (Character) value;
         try {
             return (int) Double.parseDouble(value.toString());
         } catch (Exception e) {
-            return def;
+            return defaultValue;
         }
     }
 
     /**
      * 转换到长整型，转换失败时返回 0
+     * <p>等效于 {@code toLong(value, 0L)}</p>
      *
      * @param value 值
      * @return 转换后的结果
@@ -52,26 +65,37 @@ public class Convert {
 
     /**
      * 转换到长整型
+     * <p>
+     * 根据 value 类型不同，返回结果有以下情况：
+     *  <ol>
+     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>Number: 返回强制转换为 long 后的值</li>
+     *  <li>Boolean: true 返回 1，false 返回 0</li>
+     *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
+     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  </ol>
+     * </p>
      *
-     * @param value 值
-     * @param def   转换失败时，返回的默认值
+     * @param value        值
+     * @param defaultValue 转换失败时，返回的默认值
      * @return 转换后的结果
      */
-    public static Long toLong(Object value, Long def) {
-        if (value == null) return def;
+    public static Long toLong(Object value, Long defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Long) return (Long) value;
         if (value instanceof Number) return ((Number) value).longValue();
-        if (value instanceof Boolean) return (Boolean) value ? 1L : 0;
+        if (value instanceof Boolean) return (boolean) value ? 1L : 0;
         if (value instanceof Character) return (long) (Character) value;
         try {
             return (long) Double.parseDouble(value.toString());
         } catch (Exception e) {
-            return def;
+            return defaultValue;
         }
     }
 
     /**
      * 转换到 Byte 型，转换失败时返回 0
+     * <p>等效于 {@code toByte(value, (byte) 0)}</p>
      *
      * @param value 值
      * @return 转换后的结果
@@ -82,26 +106,37 @@ public class Convert {
 
     /**
      * 转换到 Byte 型
+     * <p>
+     * 根据 value 类型不同，返回结果有以下情况：
+     *  <ol>
+     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>Number: 返回强制转换为 byte 后的值</li>
+     *  <li>Boolean: true 返回 1，false 返回 0</li>
+     *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
+     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  </ol>
+     * </p>
      *
-     * @param value 值
-     * @param def   转换失败时，返回的默认值
+     * @param value        值
+     * @param defaultValue 转换失败时，返回的默认值
      * @return 转换后的结果
      */
-    public static Byte toByte(Object value, Byte def) {
-        if (value == null) return def;
+    public static Byte toByte(Object value, Byte defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Byte) return (Byte) value;
         if (value instanceof Number) return ((Number) value).byteValue();
-        if (value instanceof Boolean) return (byte) ((Boolean) value ? 1 : 0);
+        if (value instanceof Boolean) return (byte) ((boolean) value ? 1 : 0);
         if (value instanceof Character) return (byte) (char) (Character) value;
         try {
             return (byte) Double.parseDouble(value.toString());
         } catch (Exception e) {
-            return def;
+            return defaultValue;
         }
     }
 
     /**
      * 转换到 Short 型，转换失败时返回 0
+     * <p>等效于 {@code toShort(value, (short) 0)}</p>
      *
      * @param value 值
      * @return 转换后的结果
@@ -112,26 +147,37 @@ public class Convert {
 
     /**
      * 转换到 Short 型
+     * <p>
+     * 根据 value 类型不同，返回结果有以下情况：
+     *  <ol>
+     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>Number: 返回强制转换为 short 后的值</li>
+     *  <li>Boolean: true 返回 1，false 返回 0</li>
+     *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
+     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  </ol>
+     * </p>
      *
-     * @param value 值
-     * @param def   转换失败时，返回的默认值
+     * @param value        值
+     * @param defaultValue 转换失败时，返回的默认值
      * @return 转换后的结果
      */
-    public static Short toShort(Object value, Short def) {
-        if (value == null) return def;
+    public static Short toShort(Object value, Short defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Short) return (Short) value;
         if (value instanceof Number) return ((Number) value).shortValue();
-        if (value instanceof Boolean) return (short) ((Boolean) value ? 1 : 0);
+        if (value instanceof Boolean) return (short) ((boolean) value ? 1 : 0);
         if (value instanceof Character) return (short) (char) (Character) value;
         try {
             return (short) Double.parseDouble(value.toString());
         } catch (Exception e) {
-            return def;
+            return defaultValue;
         }
     }
 
     /**
      * 转换到单精度浮点型，转换失败时返回 0
+     * <p>等效于 {@code toFloat(value, 0F)}</p>
      *
      * @param value 值
      * @return 转换后的结果
@@ -142,26 +188,37 @@ public class Convert {
 
     /**
      * 转换到单精度浮点型
+     * <p>
+     * 根据 value 类型不同，返回结果有以下情况：
+     *  <ol>
+     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>Number: 返回强制转换为 float 后的值</li>
+     *  <li>Boolean: true 返回 1，false 返回 0</li>
+     *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
+     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  </ol>
+     * </p>
      *
-     * @param value 值
-     * @param def   转换失败时，返回的默认值
+     * @param value        值
+     * @param defaultValue 转换失败时，返回的默认值
      * @return 转换后的结果
      */
-    public static Float toFloat(Object value, Float def) {
-        if (value == null) return def;
+    public static Float toFloat(Object value, Float defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Float) return (Float) value;
         if (value instanceof Number) return ((Number) value).floatValue();
-        if (value instanceof Boolean) return (Boolean) value ? 1F : 0;
+        if (value instanceof Boolean) return (boolean) value ? 1F : 0;
         if (value instanceof Character) return (float) (Character) value;
         try {
             return Float.parseFloat(value.toString());
         } catch (Exception e) {
-            return def;
+            return defaultValue;
         }
     }
 
     /**
      * 转换到双精度浮点型，转换失败时返回 0
+     * <p>等效于 {@code toDouble(value, 0.0)}</p>
      *
      * @param value 值
      * @return 转换后的结果
@@ -172,34 +229,43 @@ public class Convert {
 
     /**
      * 转换到双精度浮点型
+     * <p>
+     * 根据 value 类型不同，返回结果有以下情况：
+     *  <ol>
+     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>Number: 返回强制转换为 double 后的值</li>
+     *  <li>Boolean: true 返回 1，false 返回 0</li>
+     *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
+     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  </ol>
+     * </p>
      *
-     * @param value 值
-     * @param def   转换失败时，返回的默认值
+     * @param value        值
+     * @param defaultValue 转换失败时，返回的默认值
      * @return 转换后的结果
      */
-    public static Double toDouble(Object value, Double def) {
-        if (value == null) return def;
+    public static Double toDouble(Object value, Double defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Double) return (Double) value;
         if (value instanceof Number) return ((Number) value).doubleValue();
-        if (value instanceof Boolean) return (Boolean) value ? 1.0 : 0;
+        if (value instanceof Boolean) return (boolean) value ? 1.0 : 0;
         if (value instanceof Character) return (double) (Character) value;
         try {
             return Double.parseDouble(value.toString());
         } catch (Exception e) {
-            return def;
+            return defaultValue;
         }
     }
 
     /**
      * 转换到字符类型
-     * 根据 value 类型和值不同，以下情况会返回 true：
      * <p>
      * 根据 value 类型不同，返回结果有以下情况：
      *  <ol>
      *  <li>null: 返回 <i>默认值</i></li>
-     *  <li>Number: 返回强制转换为 (char) 后的值</li>
+     *  <li>Number: 返回强制转换为 char 后的值</li>
      *  <li>CharSequence: 如果字符串长度为 <i>1</i> 返回首个字符，否则返回 <i>默认值</i></li>
-     *  <li>其他情况: 返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      * <pre>
@@ -211,17 +277,17 @@ public class Convert {
      *     Convert.toChar(null, 'A') -> 'A'
      * </pre>
      *
-     * @param value 值
-     * @param def   value 为 null 或无法转换为字符类型返回的默认值
+     * @param value        值
+     * @param defaultValue value 为 null 或无法转换为字符类型返回的默认值
      * @return 转换后的结果
      */
-    public static Character toChar(Object value, Character def) {
-        if (value == null) return def;
+    public static Character toChar(Object value, Character defaultValue) {
+        if (value == null) return defaultValue;
         if (value instanceof Character) return (Character) value;
         if (value instanceof Number) return (char) ((Number) value).longValue();
         if (value instanceof CharSequence && ((CharSequence) value).length() == 1)
             return ((CharSequence) value).charAt(0);
-        return def;
+        return defaultValue;
     }
 
     /**
@@ -300,7 +366,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -313,7 +379,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -326,7 +392,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -339,7 +405,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -352,7 +418,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -365,7 +431,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -378,7 +444,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
@@ -391,7 +457,7 @@ public class Convert {
     }
 
     /**
-     * 将基本类型数组转为包装类型数组
+     * 将基本类型数组转为包装类型数组，如果传入 null 也会返回 null
      *
      * @param array 数组
      * @return 包装类型数组
