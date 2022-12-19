@@ -12,6 +12,53 @@ import static org.junit.jupiter.api.Assertions.*;
 class CheckTest {
 
     @Test
+    void checkString() {
+        assertFalse(Check.notBlank(null));
+        assertFalse(Check.notBlank(""));
+        assertFalse(Check.notBlank("\t\r\n "));
+        assertTrue(Check.notBlank("123"));
+        assertTrue(Check.notBlank(" 123 "));
+        assertTrue(Check.isBlank(null));
+        assertTrue(Check.isBlank(""));
+        assertTrue(Check.isBlank("\t\n "));
+        assertFalse(Check.isBlank("123"));
+        assertFalse(Check.isBlank(" 123 "));
+        // check empty
+        assertFalse(Check.notEmpty((CharSequence) null));
+        assertFalse(Check.notEmpty(""));
+        assertTrue(Check.notEmpty(" \t\r\n "));
+        assertTrue(Check.notEmpty(" 123 "));
+        assertTrue(Check.isEmpty((CharSequence) null));
+        assertTrue(Check.isEmpty(""));
+        assertFalse(Check.isEmpty("\t\n "));
+        assertFalse(Check.isEmpty(" 123 "));
+    }
+
+    @Test
+    void checkNumber() {
+        assertTrue(Check.isTrue((byte) -1));
+        assertTrue(Check.isTrue((short) -1));
+        assertTrue(Check.isTrue(-1));
+        assertTrue(Check.isTrue(-1L));
+        assertTrue(Check.isTrue(0.0000000001F));
+        assertTrue(Check.isTrue(0.0000000001));
+        assertFalse(Check.isTrue((byte) 0));
+        assertFalse(Check.isTrue((short) 0));
+        assertFalse(Check.isTrue(0));
+        assertFalse(Check.isTrue(0L));
+        assertFalse(Check.isTrue(0.00000000000F));
+        assertFalse(Check.isTrue(0.00000000000));
+        // special types
+        assertTrue(Check.isTrue(new BigInteger("-1")));
+        assertFalse(Check.isTrue(new BigInteger("0")));
+        assertTrue(Check.isTrue(new BigDecimal("-1.00002")));
+        assertTrue(Check.isTrue(new BigDecimal("-0.0000001")));
+        assertFalse(Check.isTrue(new BigDecimal("0.0000000")));
+        assertTrue(Check.isTrue(new AtomicInteger(1)));
+        assertFalse(Check.isTrue(new AtomicInteger(0)));
+    }
+
+    @Test
     void allTrue() {
         assertTrue(Check.allTrue(true));
         assertTrue(Check.allTrue(true, 1, "text", new Object(), new int[1], Arrays.asList(0, 1)));
@@ -219,30 +266,6 @@ class CheckTest {
             fail("Object should not be able to compare with array directly. Excepted: " + IllegalArgumentException.class.getName());
         } catch (IllegalArgumentException ignored) {
         }
-    }
-
-    @Test
-    void checkNumber() {
-        assertTrue(Check.isTrue((byte) -1));
-        assertTrue(Check.isTrue((short) -1));
-        assertTrue(Check.isTrue(-1));
-        assertTrue(Check.isTrue(-1L));
-        assertTrue(Check.isTrue(0.0000000001F));
-        assertTrue(Check.isTrue(0.0000000001));
-        assertFalse(Check.isTrue((byte) 0));
-        assertFalse(Check.isTrue((short) 0));
-        assertFalse(Check.isTrue(0));
-        assertFalse(Check.isTrue(0L));
-        assertFalse(Check.isTrue(0.00000000000F));
-        assertFalse(Check.isTrue(0.00000000000));
-        // special types
-        assertTrue(Check.isTrue(new BigInteger("-1")));
-        assertFalse(Check.isTrue(new BigInteger("0")));
-        assertTrue(Check.isTrue(new BigDecimal("-1.00002")));
-        assertTrue(Check.isTrue(new BigDecimal("-0.0000001")));
-        assertFalse(Check.isTrue(new BigDecimal("0.0000000")));
-        assertTrue(Check.isTrue(new AtomicInteger(1)));
-        assertFalse(Check.isTrue(new AtomicInteger(0)));
     }
 
     @SafeVarargs

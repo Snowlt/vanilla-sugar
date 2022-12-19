@@ -15,9 +15,56 @@ import java.util.function.IntFunction;
  * <p><i>这个类中提供了一些类似其他语言的写法或逻辑</i></p>
  *
  * @author SnowLT
- * @version 1.5
+ * @version 1.6
  */
 public class Check {
+
+
+    /**
+     * 检查字符序列是否不为 null 且长度不为空且包含非{@linkplain Character#isWhitespace(char) 空白字符}
+     *
+     * <pre>
+     * e.g.
+     *     notBlank(null) = false
+     *     notBlank("") = false
+     *     notBlank(" \t") = false
+     *     notBlank("abc") = true
+     *     notBlank(" abc ") = true
+     * </pre>
+     *
+     * @param cs 字符序列
+     * @return 如果字符序列为 null 或长度为空或只包含空白字符返回 false，否则返回 true
+     * @see Character#isWhitespace(int)
+     */
+    public static boolean notBlank(CharSequence cs) {
+        if (cs == null) return false;
+        int len = cs.length();
+        for (int i = 0; i < len; i++) {
+            if (!Character.isWhitespace(cs.charAt(i))) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 检查字符序列是否为 null、长度为空或只包含{@linkplain Character#isWhitespace(char) 空白字符}
+     *
+     * <pre>
+     * e.g.
+     *     isBlank(null) = true
+     *     isBlank("") = true
+     *     isBlank(" \t") = true
+     *     isBlank("abc") = false
+     *     isBlank(" abc ") = false
+     * </pre>
+     *
+     * @param cs 字符序列
+     * @return 如果字符序列为 null、长度为空或只包含空白字符返回 true，否则返回 false
+     * @see Character#isWhitespace(int)
+     * @see #notBlank(CharSequence)
+     */
+    public static boolean isBlank(CharSequence cs) {
+        return !notBlank(cs);
+    }
 
     /**
      * 判断字符序列是否不为空
@@ -172,11 +219,11 @@ public class Check {
     }
 
     /**
-     * 判断字符不为结束符（ASCII 码 0 值）
-     * 参考 C 语言的字符数组结尾
+     * 判断字符不为结束符（ASCII 码 0）
+     * <p><i>参考 C 语言的字符数组结尾</i></p>
      *
      * @param c 字符
-     * @return 不为 0 时返回 true
+     * @return 不为 ASCII 码 0 时返回 true，否则返回 false
      */
     public static boolean isTrue(Character c) {
         return c != null && c != 0;
@@ -184,7 +231,7 @@ public class Check {
 
     /**
      * 判断数字是否不等于 0
-     * <p>备注：如果是用于比较 float / double 等浮点数计算结果，建议使用 {@link BigDecimal} 替代以避免精度问题</p>
+     * <p>备注：如果是用于比较 float / double 等浮点数计算结果，建议使用 {@link BigDecimal} 相关方法替代以避免精度问题</p>
      *
      * @param n 数字
      * @return 判断结果
@@ -331,10 +378,10 @@ public class Check {
     }
 
     /**
-     * 判断所有对象是否都不为空
+     * 判断所有对象是否都不为 null
      *
      * @param targets 判断的对象
-     * @return 所有对象都不为空时返回 true
+     * @return 所有对象都不为 null 时返回 true
      */
     public static boolean noneNull(Object... targets) {
         return !anyNull(targets);
