@@ -101,6 +101,18 @@ class ConvertTest {
         assertArrayEquals(new Boolean[]{true, true, false, false}, Convert.toArray(new boolean[]{true, true, false, false}));
     }
 
+    @Test
+    void toPrimitiveArray() {
+        assertArrayEquals(new byte[]{1, 2, 3}, Convert.toPrimitiveArray(new Byte[]{1, 2, 3}));
+        assertArrayEquals(new short[]{1, 2, 3}, Convert.toPrimitiveArray(new Short[]{1, 2, 3}));
+        assertArrayEquals(new int[]{1, 2, 3}, Convert.toPrimitiveArray(new Integer[]{1, 2, 3}));
+        assertArrayEquals(new long[]{1L, 2L, 3L}, Convert.toPrimitiveArray(new Long[]{1L, 2L, 3L}));
+        assertArrayEquals(new float[]{1.1F, 2.2F, 3.3F}, Convert.toPrimitiveArray(new Float[]{1.1F, 2.2F, 3.3F}));
+        assertArrayEquals(new double[]{1.1D, 2.2D, 3.3D}, Convert.toPrimitiveArray(new Double[]{1.1, 2.2, 3.3}));
+        assertArrayEquals(new char[]{'A', 'B', 'C'}, Convert.toPrimitiveArray(new Character[]{'A', 'B', 'C'}));
+        assertArrayEquals(new boolean[]{true, true, false, false}, Convert.toPrimitiveArray(new Boolean[]{true, true, false, false}));
+    }
+
     public enum TestEnum {
         ZERO, ONE
     }

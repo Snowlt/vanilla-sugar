@@ -6,7 +6,7 @@ package sugar.core.simplification;
  * 设计参考自 C/C++ 中的基本类型转换 和 .Net 中 System.Convert 的相关方法
  *
  * @author SnowLT
- * @version 1.4
+ * @version 1.5
  * @since 2020/9/5
  */
 public class Convert {
@@ -465,6 +465,119 @@ public class Convert {
     public static Boolean[] toArray(boolean[] array) {
         if (array == null) return null;
         Boolean[] na = new Boolean[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static byte[] toPrimitiveArray(Byte[] array) {
+        if (array == null) return null;
+        byte[] na = new byte[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static short[] toPrimitiveArray(Short[] array) {
+        if (array == null) return null;
+        short[] na = new short[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static int[] toPrimitiveArray(Integer[] array) {
+        if (array == null) return null;
+        int[] na = new int[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static long[] toPrimitiveArray(Long[] array) {
+        if (array == null) return null;
+        long[] na = new long[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static float[] toPrimitiveArray(Float[] array) {
+        if (array == null) return null;
+        float[] na = new float[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static double[] toPrimitiveArray(Double[] array) {
+        if (array == null) return null;
+        double[] na = new double[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static char[] toPrimitiveArray(Character[] array) {
+        if (array == null) return null;
+        char[] na = new char[array.length];
+        for (int i = 0; i < array.length; i++) na[i] = array[i];
+        return na;
+    }
+
+    /**
+     * 将包装类型数组转为基本类型数组，如果传入 null 也会返回 null
+     *
+     * @param array 数组
+     * @return 基本类型数组
+     * @throws NullPointerException 如果原数组中有元素为 null
+     */
+    public static boolean[] toPrimitiveArray(Boolean[] array) {
+        if (array == null) return null;
+        boolean[] na = new boolean[array.length];
         for (int i = 0; i < array.length; i++) na[i] = array[i];
         return na;
     }
