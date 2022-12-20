@@ -259,8 +259,16 @@ class CheckTest {
         assertTrue(Check.contentEqualsAsCollection(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)));
         assertTrue(Check.contentEqualsAsCollection(new float[]{12F, 34F, 56F}, new long[]{12L, 34L, 56L}));
         assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")));
+        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>("12", "34", "12", "34")));
+        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>(12L, 34L, 12L, 34L)));
+        assertTrue(Check.contentEqualsAsCollection(new IterableWrapper<>("12", "34", "12", "34"), Arrays.asList("12", "34", "12", "34")));
+        assertTrue(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B", "C")));
         assertFalse(Check.contentEqualsAsCollection(new int[1], null));
         assertFalse(Check.contentEqualsAsCollection(new String[]{"A"}, Arrays.asList("A", "A")));
+        assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>(), null));
+        assertFalse(Check.contentEqualsAsCollection(new String[]{"A"}, new IterableWrapper<>("A", "A")));
+        assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B", "X")));
+        assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B")));
         try {
             Check.contentEqualsAsCollection(new int[1], "string");
             fail("Object should not be able to compare with array directly. Excepted: " + IllegalArgumentException.class.getName());
@@ -278,4 +286,17 @@ class CheckTest {
         return new ArrayDeque<>(Arrays.asList(elements));
     }
 
+    public static class IterableWrapper<T> implements Iterable<T> {
+        private final List<T> content;
+
+        @SafeVarargs
+        public IterableWrapper(T... elements) {
+            content = Arrays.asList(elements);
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return content.iterator();
+        }
+    }
 }

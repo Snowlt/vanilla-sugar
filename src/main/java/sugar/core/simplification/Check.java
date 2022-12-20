@@ -664,12 +664,7 @@ public class Check {
     public static boolean contentEqualsAsCollection(Collection<?> left, Collection<?> right) {
         if (left == right) return true;
         if (left == null || right == null || left.size() != right.size()) return false;
-        Iterator<?> iterator1 = left.iterator();
-        Iterator<?> iterator2 = right.iterator();
-        while (iterator1.hasNext() && iterator2.hasNext()) {
-            if (!contentEquals(iterator1.next(), iterator2.next())) return false;
-        }
-        return true;
+        return contentEqualsByIteration(left, right);
     }
 
     /**
@@ -701,19 +696,25 @@ public class Check {
     public static boolean contentEqualsAsCollection(Object left, Object right) {
         if (left == right) return true;
         if (left == null || right == null) return false;
-        return contentEqualsAsCollection(toCollection(left), toCollection(right));
+        Iterable<?> l = tryWrappingInCollection(left);
+        Iterable<?> r = tryWrappingInCollection(right);
+        return (l instanceof Collection && r instanceof Collection) ?
+                contentEqualsAsCollection((Collection<?>) l, (Collection<?>) r) : contentEqualsByIteration(l, r);
     }
 
-    private static Collection<?> toCollection(Object o) {
-        if (o instanceof Collection) return (Collection<?>) o;
-        if (o.getClass().isArray()) return ArrayAdaptor.build(o);
-        if (o instanceof Iterable) {
-            ArrayList<Object> list = new ArrayList<>();
-            Iterable<?> iterable = (Iterable<?>) o;
-            for (Object item : iterable) list.add(item);
-            return list;
+    private static boolean contentEqualsByIteration(Iterable<?> left, Iterable<?> right) {
+        Iterator<?> iterator1 = left.iterator();
+        Iterator<?> iterator2 = right.iterator();
+        while (iterator1.hasNext() && iterator2.hasNext()) {
+            if (!contentEquals(iterator1.next(), iterator2.next())) return false;
         }
-        throw new IllegalArgumentException("Unsupported type");
+        return !iterator1.hasNext() && !iterator2.hasNext();
+    }
+
+    private static Iterable<?> tryWrappingInCollection(Object o) {
+        if (o.getClass().isArray()) return ArrayAdaptor.build(o);
+        if (o instanceof Iterable) return (Iterable<?>) o;
+        throw new IllegalArgumentException("Unsupported type: " + o.getClass());
     }
 
     /**
