@@ -16,13 +16,13 @@ class IndexerTest {
     final static String[] ARRAY = new String[]{"hello", "code", "world"};
     final static List<Integer> LIST = new LinkedList<>(Arrays.asList(1, 2, 3));
     final static Deque<Integer> DEQUE = new ArrayDeque<>(Arrays.asList(1, 2, 3));
-    final static Iterable<Integer> ITER = new TreeSet<>(Arrays.asList(1, 2, 3));
+    final static Iterable<Integer> ITER = new IterableWrapper<>(1, 2, 3);
     final static CharSequence STRING = new StringBuilder("To be, or not to be");
 
     final static String[] EMPTY_ARRAY = new String[0];
     final static List<Integer> EMPTY_LIST = Collections.emptyList();
     final static Deque<Integer> EMPTY_DEQUE = new ArrayDeque<>();
-    final static Iterable<Integer> EMPTY_ITER = new TreeSet<>();
+    final static Iterable<Integer> EMPTY_ITER = new IterableWrapper<>();
     final static CharSequence EMPTY_STRING = new StringBuilder();
 
     final static String DEF_STRING = "default";
@@ -94,11 +94,13 @@ class IndexerTest {
         // forward out of bounds
         runOob(() -> Indexer.at(DEQUE, DEQUE.size()));
         runOob(() -> Indexer.at(DEQUE, DEQUE.size() + 2));
-        runOob(() -> Indexer.at(ITER, ((Collection<?>) ITER).size()));
-        runOob(() -> Indexer.at(ITER, ((Collection<?>) ITER).size() + 2));
+        final int iterSize = ((IterableWrapper<?>) ITER).size();
+        runOob(() -> Indexer.at(ITER, iterSize));
+        runOob(() -> Indexer.at(ITER, iterSize + 2));
         // backward out of bounds
         runOob(() -> Indexer.at(DEQUE, -DEQUE.size() - 2));
-        runOob(() -> Indexer.at(ITER, -((Collection<?>) ITER).size() - 2));
+        runOob(() -> Indexer.at(ITER, -iterSize - 1));
+        runOob(() -> Indexer.at(ITER, -iterSize - 2));
     }
 
     @Test
@@ -196,6 +198,24 @@ class IndexerTest {
             supplier.get();
             fail("Should not run");
         } catch (IndexOutOfBoundsException ignored) {
+        }
+    }
+
+    public static class IterableWrapper<T> implements Iterable<T> {
+        private final List<T> content;
+
+        public int size() {
+            return content.size();
+        }
+
+        @SafeVarargs
+        public IterableWrapper(T... elements) {
+            content = Arrays.asList(elements);
+        }
+
+        @Override
+        public Iterator<T> iterator() {
+            return content.iterator();
         }
     }
 }

@@ -70,6 +70,8 @@ public class Indexer {
      *      at({1, 2, 3}, -1) -> 3
      * </pre>
      * <p>操作耗时最大为O(n)，n是对象的总长度</p>
+     * <p>查找元素时会通过 {@link Iterable#iterator()} 方法获取 {@link Iterator} 对象。
+     * 一般每次获取到的都是新对象，如果不是可能会导致未知的结果，例如抛出 {@link NoSuchElementException}</p>
      *
      * @param <T>      泛型
      * @param iterable 可迭代对象
@@ -81,15 +83,9 @@ public class Indexer {
         if (iterable == null) oob();
         if (iterable instanceof List) return at((List<T>) iterable, index);
         if (index >= 0) return iterateTo(iterable.iterator(), index);
-        if (iterable instanceof Collection) {
-            index = normalIndex(((Collection<T>) iterable).size(), index);
-            return iterateTo(iterable.iterator(), index);
-        }
-        List<T> list = new ArrayList<>();
-        for (T t : iterable) {
-            list.add(t);
-        }
-        return at(list, index);
+        if (iterable instanceof Collection)
+            return iterateTo(iterable.iterator(), normalIndex(((Collection<T>) iterable).size(), index));
+        return findLast(iterable, -index);
     }
 
     /**
@@ -252,13 +248,16 @@ public class Indexer {
      *      atOrDefault({1, 2, 3}, -1, null) -> 3
      *      atOrDefault(null, -1, 2) -> 2
      * </pre>
-     * <p>(这是一个耗时接近O(n)的操作)</p>
+     * <p>操作耗时最大为O(n)，n是对象的总长度</p>
+     * <p>查找元素时会通过 {@link Iterable#iterator()} 方法获取 {@link Iterator} 对象。
+     * 一般每次获取到的都是新对象，如果不是可能会导致未知的结果，例如抛出 {@link NoSuchElementException}</p>
      *
      * @param <T>          泛型
      * @param iterable     可迭代对象
      * @param index        下标(负数表示从右侧选取)
      * @param defaultValue 无法获取指定元素时返回的默认值
      * @return 指定位置的元素
+     * @see #at(Iterable, int)
      */
     public static <T> T atOrDefault(Iterable<T> iterable, int index, T defaultValue) {
         try {
@@ -623,7 +622,6 @@ public class Indexer {
             T last = iterator.next();
             if (!iterator.hasNext()) return last;
         }
-        oob();
         throw new IndexOutOfBoundsException();
     }
 
@@ -750,6 +748,23 @@ public class Indexer {
         for (int i = 0; i < index && iterator.hasNext(); i++) iterator.next();
         if (!iterator.hasNext()) oob();
         return iterator.next();
+    }
+
+    /**
+     * 找到逆向下标对应的元素
+     * 算法与查找单向链表倒数第k个元素相同
+     *
+     * @param iterable  可迭代对象(不为 null)
+     * @param lastIndex 逆向的下标(>=1)
+     * @return 下标对应元素
+     */
+    static <T> T findLast(Iterable<T> iterable, int lastIndex) {
+        Iterator<T> fast = iterable.iterator();
+        for (; lastIndex > 0 && fast.hasNext(); lastIndex--) fast.next();
+        if (lastIndex != 0) oob();
+        Iterator<T> head = iterable.iterator();
+        for (; fast.hasNext(); fast.next()) head.next();
+        return head.next();
     }
 
     private static void oob() {
