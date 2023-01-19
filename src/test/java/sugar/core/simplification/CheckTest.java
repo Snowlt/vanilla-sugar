@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -239,41 +240,63 @@ class CheckTest {
     }
 
     @Test
-    void contentEqualsCollection() {
-        assertTrue(Check.contentEqualsAsCollection(null, null));
-        assertTrue(Check.contentEqualsAsCollection(toQueue("A", "B"), Arrays.asList("A", "B")));
-        assertTrue(Check.contentEqualsAsCollection(toQueue("A", "B", "A", "B"), Arrays.asList("A", "B", "A", "B")));
-        assertTrue(Check.contentEqualsAsCollection(toQueue(12, 34, 12, 34), Arrays.asList("12", "34", "12", "34")));
-        assertTrue(Check.contentEqualsAsCollection(toQueue(12F, 34F, 56F), Arrays.asList(12L, 34L, 56L)));
-        assertTrue(Check.contentEqualsAsCollection(toQueue(65, 66, 67), Arrays.asList('A', 'B', 'C')));
-        assertFalse(Check.contentEqualsAsCollection(null, Collections.emptyList()));
-        assertFalse(Check.contentEqualsAsCollection(Collections.emptyList(), null));
-        assertFalse(Check.contentEqualsAsCollection(toQueue("A"), Arrays.asList("A", "A")));
-        assertFalse(Check.contentEqualsAsCollection(toQueue("A", "B", "C"), Arrays.asList("A", "B", "B")));
-        assertFalse(Check.contentEqualsAsCollection(toQueue("A", "B", "C"), Arrays.asList("C", "B", "A")));
+    void collectionEquals() {
+        assertTrue(Check.collectionEquals(null, null));
+        assertTrue(Check.collectionEquals(toQueue("A", "B"), Arrays.asList("A", "B")));
+        assertTrue(Check.collectionEquals(toQueue("A", "B", "A", "B"), Arrays.asList("A", "B", "A", "B")));
+        assertFalse(Check.collectionEquals(toQueue(12, 34, 12, 34), Arrays.asList("12", "34", "12", "34")));
+        assertFalse(Check.collectionEquals(toQueue(12F, 34F, 56F), Arrays.asList(12L, 34L, 56L)));
+        assertFalse(Check.collectionEquals(toQueue(65, 66, 67), Arrays.asList('A', 'B', 'C')));
+        assertFalse(Check.collectionEquals(null, Collections.emptyList()));
+        assertFalse(Check.collectionEquals(Collections.emptyList(), null));
+        assertFalse(Check.collectionEquals(toQueue("A"), Arrays.asList("A", "A")));
+        assertFalse(Check.collectionEquals(toQueue("A", "B", "C"), Arrays.asList("A", "B", "B")));
+        assertFalse(Check.collectionEquals(toQueue("A", "B", "C"), Arrays.asList("C", "B", "A")));
+    }
+
+    @Test
+    void collectionEqualsByPredicate() {
+        BiPredicate<Object, Object> p = Check::contentEquals;
+        assertTrue(Check.collectionEquals(null, null, p));
+        assertTrue(Check.collectionEquals(toQueue("A", "B", "A", "B"), Arrays.asList("A", "B", "A", "B"), p));
+        assertTrue(Check.collectionEquals(toQueue(12, 34, 12, 34), Arrays.asList("12", "34", "12", "34"), p));
+        assertTrue(Check.collectionEquals(toQueue(12F, 34F, 56F), Arrays.asList(12L, 34L, 56L), p));
+        assertTrue(Check.collectionEquals(toQueue(65, 66, 67), Arrays.asList('A', 'B', 'C'), p));
+        assertFalse(Check.collectionEquals(toQueue("A"), Arrays.asList("A", "A"), p));
+        assertFalse(Check.collectionEquals(toQueue("A", "B", "C"), Arrays.asList("A", "B", "B"), p));
+        assertFalse(Check.collectionEquals(toQueue("A", "B", "C"), Arrays.asList("C", "B", "A"), p));
     }
 
     @Test
     void contentEqualsIterable() {
-        assertTrue(Check.contentEqualsAsCollection((Object) null, (Object) null));
+        assertTrue(Check.contentEqualsAsCollection(null, null));
         assertTrue(Check.contentEqualsAsCollection(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)));
-        assertTrue(Check.contentEqualsAsCollection(new float[]{12F, 34F, 56F}, new long[]{12L, 34L, 56L}));
-        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")));
-        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>("12", "34", "12", "34")));
-        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>(12L, 34L, 12L, 34L)));
         assertTrue(Check.contentEqualsAsCollection(new IterableWrapper<>("12", "34", "12", "34"), Arrays.asList("12", "34", "12", "34")));
         assertTrue(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B", "C")));
+        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>(12L, 34L, 12L, 34L)));
+        assertFalse(Check.contentEqualsAsCollection(new float[]{12F, 34F, 56F}, new long[]{12L, 34L, 56L}));
+        assertFalse(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")));
+        assertFalse(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>("12", "34", "12", "34")));
         assertFalse(Check.contentEqualsAsCollection(new int[1], null));
         assertFalse(Check.contentEqualsAsCollection(new String[]{"A"}, Arrays.asList("A", "A")));
         assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>(), null));
         assertFalse(Check.contentEqualsAsCollection(new String[]{"A"}, new IterableWrapper<>("A", "A")));
         assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B", "X")));
         assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B")));
-        try {
-            Check.contentEqualsAsCollection(new int[1], "string");
-            fail("Object should not be able to compare with array directly. Excepted: " + IllegalArgumentException.class.getName());
-        } catch (IllegalArgumentException ignored) {
-        }
+        assertThrows(IllegalArgumentException.class, () -> Check.contentEqualsAsCollection(new int[1], "string"));
+    }
+
+    @Test
+    void contentEqualsIterableByPredicate() {
+        BiPredicate<Object, Object> p = Check::contentEquals;
+        assertTrue(Check.contentEqualsAsCollection(null, null, p));
+        assertTrue(Check.contentEqualsAsCollection(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3), p));
+        assertTrue(Check.contentEqualsAsCollection(new float[]{12F, 34F, 56F}, new long[]{12L, 34L, 56L}, p));
+        assertTrue(Check.contentEqualsAsCollection(new long[]{12, 34, 12, 34}, new IterableWrapper<>("12", "34", "12", "34"), p));
+        assertTrue(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B", "C"), p));
+        assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B", "X"), p));
+        assertFalse(Check.contentEqualsAsCollection(new IterableWrapper<>("A", "B", "C"), new IterableWrapper<>("A", "B"), p));
+        assertThrows(IllegalArgumentException.class, () -> Check.contentEqualsAsCollection(new int[1], "string", p));
     }
 
     @SafeVarargs

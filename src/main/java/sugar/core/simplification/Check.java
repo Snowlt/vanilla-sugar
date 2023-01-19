@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.IntFunction;
 
 /**
@@ -587,7 +588,7 @@ public class Check {
      * </ol>
      * 如果匹配不到以上方法，则会调用 {@link Object#equals(Object)} 作为结果
      * <p>
-     * <i>如果需要判断两个集合的内容是否相同，请使用 {@link #contentEqualsAsCollection(Collection, Collection)}</i>
+     * <i>如果需要判断两个集合中的内容是否相同，请使用 {@link #collectionEquals(Collection, Collection)}</i>
      * </p>
      *
      * @param left  任意对象
@@ -600,9 +601,7 @@ public class Check {
         Class<?> c1 = left.getClass();
         Class<?> c2 = right.getClass();
         // 都是数字（此处已经被自动装箱，不用处理基本数据类型）
-        if (left instanceof Number && right instanceof Number) {
-            return equals((Number) left, (Number) right);
-        }
+        if (left instanceof Number && right instanceof Number) return equals((Number) left, (Number) right);
         // 字符串和其他比较
         if (left instanceof CharSequence) {
             if (right instanceof CharSequence) return equals((CharSequence) left, (CharSequence) right);
@@ -623,7 +622,8 @@ public class Check {
     }
 
     /**
-     * 将左右侧的 Collection 当作 Set，判断内容是否相同（元素通过 {@link Object#equals(Object)} 判断）
+     * 将左右侧的 Collection 当作 Set 判断内容是否相同（元素使用 {@link Objects#equals(Object, Object)} 进行比较）
+     * <p>如果传入的对象不是 Set，会自动转化为 Set 后再进行比较</p>
      * <pre>
      * 例如有如下情况：
      *      contentEquals({"A", "B"}, {"B", "A"}) -> true
@@ -631,7 +631,6 @@ public class Check {
      *      contentEquals({"A", "B"}, {"A", "B", "C"}) -> false
      *      contentEquals({"A", "B", "C"}, {"A", "B", "B"}) -> false
      * </pre>
-     * <i>比较不同类型的 Set 可能会出现歧义，所以集合内的元素使用 {@link Object#equals(Object)} 互相比较</i>
      *
      * @return 两者内容相同时返回 true
      */
@@ -644,27 +643,30 @@ public class Check {
     }
 
     /**
-     * 判断左侧和右侧集合中，对应位置的元素内容是否相同
-     * <p>在遇到元素类型不一致时会尝试自动转换对象的类型再判断（集合内的元素使用
-     * {@link #contentEquals(Object, Object)} 互相比较）</p>
+     * 判断左侧和右侧可迭代对象中，对应位置的元素内容是否相同，且两者长度相等（元素使用
+     * {@link Objects#equals(Object, Object)} 进行比较）
+     * <p>
+     * 左侧和右侧支持传入：
+     * <ul>
+     *     <li>{@link Collection}</li>
+     *     <li>{@link Iterable}</li>
+     *     <li>{@code Object[]}, {@code int[]} 等对象数组和基本类型数组</li>
+     * </ul></p>
      *
      * <pre>
      * 例如有如下情况：
-     *      contentEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
-     *      contentEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> true
-     *      contentEquals({12F, 34F, 56F}, {12L, 34L, 56L}) -> true
-     *      contentEquals({"A"}, {"A", "A"}) -> false
-     *      contentEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
+     *      contentEquals(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
+     *      contentEquals(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> false
+     *      contentEquals(new String[]{"A"}, Arrays.asList("A", "A")) -> false
      * </pre>
      *
      * @param left  集合
      * @param right 集合
-     * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
+     * @return 左右的长度相等，且对应位置元素内容相同时返回 true
+     * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组 时抛出
      */
-    public static boolean contentEqualsAsCollection(Collection<?> left, Collection<?> right) {
-        if (left == right) return true;
-        if (left == null || right == null || left.size() != right.size()) return false;
-        return contentEqualsByIteration(left, right);
+    public static boolean contentEqualsAsCollection(Object left, Object right) {
+        return contentEqualsAsCollection(left, right, Objects::equals);
     }
 
     /**
@@ -677,36 +679,71 @@ public class Check {
      *     <li>{@link Iterable}</li>
      *     <li>{@code Object[]}, {@code int[]} 等对象数组和基本类型数组</li>
      * </ul>
-     * 在遇到元素类型不一致时会尝试自动转换对象的类型再判断（通过 {@link #contentEquals(Object, Object)} 判断）
+     * 判断元素是否相同时使用 {@code equalsPredicate} 参数指定的 {@link java.util.function.BiPredicate} 进行判断
      * </p>
-     *
-     * <pre>
-     * 例如有如下情况：
-     *      contentEquals(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
-     *      contentEquals(new float[]{12F, 34F, 56F}, new long[]{12L, 34L, 56L}) -> true
-     *      contentEquals(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> true
-     *      contentEquals(new String[]{"A"}, Arrays.asList("A", "A")) -> false
-     * </pre>
      *
      * @param left  集合
      * @param right 集合
      * @return 左右的长度相等，且对应位置元素内容相同时返回 true
-     * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组 时抛出
+     * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组，或 equalsPredicate 为 null 时抛出
      */
-    public static boolean contentEqualsAsCollection(Object left, Object right) {
+    @SuppressWarnings("unchecked")
+    public static boolean contentEqualsAsCollection(Object left, Object right,
+                                                    BiPredicate<Object, Object> equalsPredicate) {
+        if (equalsPredicate == null) throw new IllegalArgumentException("equalsPredicate cannot be null");
         if (left == right) return true;
         if (left == null || right == null) return false;
         Iterable<?> l = tryWrappingInCollection(left);
         Iterable<?> r = tryWrappingInCollection(right);
         return (l instanceof Collection && r instanceof Collection) ?
-                contentEqualsAsCollection((Collection<?>) l, (Collection<?>) r) : contentEqualsByIteration(l, r);
+                collectionEquals((Collection<Object>) l, (Collection<Object>) r, equalsPredicate) :
+                contentEqualsByIteration((Iterable<Object>) l, (Iterable<Object>) r, equalsPredicate);
     }
 
-    private static boolean contentEqualsByIteration(Iterable<?> left, Iterable<?> right) {
-        Iterator<?> iterator1 = left.iterator();
-        Iterator<?> iterator2 = right.iterator();
+    /**
+     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素内容是否相同（元素使用
+     * {@link Objects#equals(Object, Object)} 进行比较）
+     *
+     * <pre>
+     * 例如有如下情况：
+     *      contentEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
+     *      contentEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> false
+     *      contentEquals({"A"}, {"A", "A"}) -> false
+     *      contentEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
+     * </pre>
+     *
+     * @param left  集合
+     * @param right 集合
+     * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
+     */
+    public static boolean collectionEquals(Collection<?> left, Collection<?> right) {
+        return collectionEquals(left, right, Objects::equals);
+    }
+
+    /**
+     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素内容是否相同
+     * <p>在判断元素是否相同时使用 {@code equalsPredicate} 参数指定的 {@link java.util.function.BiPredicate} 进行判断</p>
+     *
+     * @param left            集合
+     * @param right           集合
+     * @param equalsPredicate 用于判断两个对象是否相等，相同则返回 true，不同返回 false
+     * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
+     * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组，或 equalsPredicate 为 null 时抛出
+     */
+    public static <T1, T2> boolean collectionEquals(Collection<T1> left, Collection<T2> right,
+                                                    BiPredicate<T1, T2> equalsPredicate) {
+        if (equalsPredicate == null) throw new IllegalArgumentException("equalsPredicate cannot be null");
+        if (left == right) return true;
+        if (left == null || right == null || left.size() != right.size()) return false;
+        return contentEqualsByIteration(left, right, equalsPredicate);
+    }
+
+    private static <T1, T2> boolean contentEqualsByIteration(Iterable<T1> left, Iterable<T2> right,
+                                                             BiPredicate<T1, T2> predicate) {
+        Iterator<T1> iterator1 = left.iterator();
+        Iterator<T2> iterator2 = right.iterator();
         while (iterator1.hasNext() && iterator2.hasNext()) {
-            if (!contentEquals(iterator1.next(), iterator2.next())) return false;
+            if (!predicate.test(iterator1.next(), iterator2.next())) return false;
         }
         return !iterator1.hasNext() && !iterator2.hasNext();
     }
