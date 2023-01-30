@@ -16,7 +16,7 @@ import java.util.function.IntFunction;
  * <p><i>这个类中提供了一些类似其他语言的写法或逻辑</i></p>
  *
  * @author SnowLT
- * @version 1.6
+ * @version 1.7
  */
 public class Check {
 
@@ -389,29 +389,6 @@ public class Check {
     }
 
     /**
-     * 判断左右两个字符序列的文本内容是否相同（区分大小写）
-     * <pre>
-     * e.g.
-     *     equals("1", "1") -> true
-     *     equals(new StringBuilder("AAA"), "AAA") -> true
-     *     equals("1.0", "1") -> false
-     *     equals("Abc", "abc") -> false
-     * </pre>
-     *
-     * @param left  左
-     * @param right 右
-     * @return 两者内容相同时返回 true
-     */
-    public static boolean equals(CharSequence left, CharSequence right) {
-        // 自身检测和空值检测
-        if (left == right) return true;
-        if (left == null || right == null) return false;
-        // 如果存在 String，使用 String 的 contentEquals 方法
-        if (left instanceof String) return ((String) left).contentEquals(right);
-        return right.toString().contentEquals(left);
-    }
-
-    /**
      * 判断左右两个浮点数的数值是否相同，可避免类型转换时的精度问题（使用 BigDecimal 封装）
      * <pre>
      * e.g.
@@ -445,6 +422,29 @@ public class Check {
     }
 
     /**
+     * 判断左右两个字符序列的文本内容是否相同（区分大小写）
+     * <pre>
+     * e.g.
+     *     equals("1", "1") -> true
+     *     equals(new StringBuilder("AAA"), "AAA") -> true
+     *     equals("1.0", "1") -> false
+     *     equals("Abc", "abc") -> false
+     * </pre>
+     *
+     * @param left  左
+     * @param right 右
+     * @return 两者内容相同时返回 true
+     */
+    public static boolean equals(CharSequence left, CharSequence right) {
+        // 自身检测和空值检测
+        if (left == right) return true;
+        if (left == null || right == null) return false;
+        // 如果存在 String，使用 String 的 contentEquals 方法
+        if (left instanceof String) return ((String) left).contentEquals(right);
+        return right.toString().contentEquals(left);
+    }
+
+    /**
      * 判断左侧字符序列与右侧字符数组的文本内容是否相同（区分大小写）
      * <pre>
      * e.g.
@@ -457,7 +457,7 @@ public class Check {
      * @param right 右（字符数组）
      * @return 两者内容相同时返回 true
      */
-    public static boolean contentEquals(CharSequence left, char[] right) {
+    public static boolean equals(CharSequence left, char[] right) {
         // 空值检测
         if (left == null && right == null) {
             return true;
@@ -482,10 +482,10 @@ public class Check {
      * @param left  左（字符数组）
      * @param right 右（字符序列）
      * @return 两者内容相同时返回 true
-     * @see #contentEquals(CharSequence, char[])
+     * @see #equals(CharSequence, char[])
      */
-    public static boolean contentEquals(char[] left, CharSequence right) {
-        return contentEquals(right, left);
+    public static boolean equals(char[] left, CharSequence right) {
+        return equals(right, left);
     }
 
     /**
@@ -495,22 +495,24 @@ public class Check {
      * <pre>
      * 右侧对象的类型有如下情况：
      * 与 Character/char 比较为常规的判断
-     *      contentEquals('A', 'A') -> true
-     *      contentEquals('A', 'B') -> false
+     *      equalsAsChar('A', 'A') -> true
+     *      equalsAsChar('A', 'B') -> false
      * 与 CharSequence 比较，会在右侧长度为1时提取首个字符进行比较
-     *      contentEquals('A', "A") -> true
-     *      contentEquals('A', "B") -> false
-     *      contentEquals('A', "ABC") -> false
+     *      equalsAsChar('A', "A") -> true
+     *      equalsAsChar('A', "B") -> false
+     *      equalsAsChar('A', "ABC") -> false
      * 与 Number 比较，会使用 left 的 ASCII 码与右侧比较
-     *      contentEquals('A', 65) -> true
-     *      contentEquals('A', 55) -> false
+     *      equalsAsChar('A', 65) -> true
+     *      equalsAsChar('A', 55) -> false
+     * 其他情况返回 false
+     *      equalsAsChar('A', new Object()) -> false
      * </pre>
      *
      * @param left  左（字符）
      * @param right 右（任意对象）
      * @return 两者内容相同时返回 true
      */
-    public static boolean contentEqualsAsChar(Character left, Object right) {
+    public static boolean equalsAsChar(Character left, Object right) {
         // 空值检测
         if (left == right) return true;
         if (left == null || right == null) return false;
@@ -535,17 +537,17 @@ public class Check {
      * 会尝试将字符串转为数字进行比较，如果失败则返回 false
      * <pre>
      * 例如有如下情况：
-     *      contentEquals(233, "233") -> true
-     *      contentEquals(233.0, "233") -> true
-     *      contentEquals(1.0, "1.00") -> true
-     *      contentEquals(2, "AAA") -> false
+     *      equalsAsNumber(233, "233") -> true
+     *      equalsAsNumber(233.0, "233") -> true
+     *      equalsAsNumber(1.0, "1.00") -> true
+     *      equalsAsNumber(2, "AAA") -> false
      * </pre>
      *
      * @param left  左（数字）
      * @param right 右（字符序列）
      * @return 两者内容相同时返回 true
      */
-    public static boolean contentEqualsAsNumber(Number left, CharSequence right) {
+    public static boolean equalsAsNumber(Number left, CharSequence right) {
         // 空值检测
         if (left == null && right == null) return true;
         if (left == null || right == null) return false;
@@ -563,17 +565,17 @@ public class Check {
      * 会尝试将字符串转为数字进行比较，如果失败则将数字转为字符串对比文本
      * <pre>
      * 例如有如下情况：
-     *      contentEquals("233", 233) -> true
-     *      contentEquals("233", 233.0) -> true
-     *      contentEquals("1.00", 1.0) -> true
-     *      contentEquals("AAA", 2) -> false
+     *      equalsAsNumber("233", 233) -> true
+     *      equalsAsNumber("233", 233.0) -> true
+     *      equalsAsNumber("1.00", 1.0) -> true
+     *      equalsAsNumber("AAA", 2) -> false
      * </pre>
      *
      * @return 两者内容相同时返回 true
-     * @see #contentEqualsAsNumber(Number, CharSequence)
+     * @see #equalsAsNumber(Number, CharSequence)
      */
-    public static boolean contentEqualsAsNumber(CharSequence left, Number right) {
-        return contentEqualsAsNumber(right, left);
+    public static boolean equalsAsNumber(CharSequence left, Number right) {
+        return equalsAsNumber(right, left);
     }
 
 
@@ -582,9 +584,9 @@ public class Check {
      * <ol>
      *     <li>{@link #equals(Number, Number)}</li>
      *     <li>{@link #equals(CharSequence, CharSequence)}</li>
-     *     <li>{@link #contentEqualsAsNumber(Number, CharSequence)} 和 {@link #contentEqualsAsNumber(CharSequence, Number)}</li>
-     *     <li>{@link #contentEquals(CharSequence, char[])} 和 {@link #contentEquals(char[], CharSequence)}</li>
-     *     <li>{@link #contentEqualsAsChar(Character, Object)} </li>
+     *     <li>{@link #equalsAsNumber(Number, CharSequence)} 和 {@link #equalsAsNumber(CharSequence, Number)}</li>
+     *     <li>{@link #equals(CharSequence, char[])} 和 {@link #equals(char[], CharSequence)}</li>
+     *     <li>{@link #equalsAsChar(Character, Object)} </li>
      * </ol>
      * 如果匹配不到以上方法，则会调用 {@link Object#equals(Object)} 作为结果
      * <p>
@@ -605,17 +607,17 @@ public class Check {
         // 字符串和其他比较
         if (left instanceof CharSequence) {
             if (right instanceof CharSequence) return equals((CharSequence) left, (CharSequence) right);
-            if (right instanceof Number) return contentEqualsAsNumber((Number) right, (CharSequence) left);
-            if (right instanceof char[]) return contentEquals((CharSequence) left, (char[]) right);
+            if (right instanceof Number) return equalsAsNumber((Number) right, (CharSequence) left);
+            if (right instanceof char[]) return equals((CharSequence) left, (char[]) right);
         } else if (right instanceof CharSequence) {
-            if (left instanceof Number) return contentEqualsAsNumber((Number) left, (CharSequence) right);
-            if (left instanceof char[]) return contentEquals((CharSequence) right, (char[]) left);
+            if (left instanceof Number) return equalsAsNumber((Number) left, (CharSequence) right);
+            if (left instanceof char[]) return equals((CharSequence) right, (char[]) left);
         }
         // 左右存在字符类型
         if (c1 == Character.class) {
-            return contentEqualsAsChar((Character) left, right);
+            return equalsAsChar((Character) left, right);
         } else if (c2 == Character.class) {
-            return contentEqualsAsChar((Character) right, left);
+            return equalsAsChar((Character) right, left);
         }
         // 其他情况，直接使用对象的 equals 方法
         return left.equals(right);
@@ -626,10 +628,10 @@ public class Check {
      * <p>如果传入的对象不是 Set，会自动转化为 Set 后再进行比较</p>
      * <pre>
      * 例如有如下情况：
-     *      contentEquals({"A", "B"}, {"B", "A"}) -> true
-     *      contentEquals({"A"}, {"A", "A"}) -> true
-     *      contentEquals({"A", "B"}, {"A", "B", "C"}) -> false
-     *      contentEquals({"A", "B", "C"}, {"A", "B", "B"}) -> false
+     *      contentEqualsAsSet({"A", "B"}, {"B", "A"}) -> true
+     *      contentEqualsAsSet({"A"}, {"A", "A"}) -> true
+     *      contentEqualsAsSet({"A", "B"}, {"A", "B", "C"}) -> false
+     *      contentEqualsAsSet({"A", "B", "C"}, {"A", "B", "B"}) -> false
      * </pre>
      *
      * @return 两者内容相同时返回 true
@@ -655,9 +657,9 @@ public class Check {
      *
      * <pre>
      * 例如有如下情况：
-     *      contentEquals(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
-     *      contentEquals(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> false
-     *      contentEquals(new String[]{"A"}, Arrays.asList("A", "A")) -> false
+     *      contentEqualsAsCollection(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
+     *      contentEqualsAsCollection(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> false
+     *      contentEqualsAsCollection(new String[]{"A"}, Arrays.asList("A", "A")) -> false
      * </pre>
      *
      * @param left  集合
@@ -706,10 +708,10 @@ public class Check {
      *
      * <pre>
      * 例如有如下情况：
-     *      contentEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
-     *      contentEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> false
-     *      contentEquals({"A"}, {"A", "A"}) -> false
-     *      contentEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
+     *      collectionEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
+     *      collectionEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> false
+     *      collectionEquals({"A"}, {"A", "A"}) -> false
+     *      collectionEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
      * </pre>
      *
      * @param left  集合

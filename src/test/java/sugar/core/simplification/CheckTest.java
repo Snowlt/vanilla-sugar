@@ -130,8 +130,8 @@ class CheckTest {
         assertFalse(Check.equals("A", new StringBuilder("a")));
         assertFalse(Check.equals("", new StringBuilder("456")));
         assertFalse(Check.equals("0", new StringBuilder("456")));
-        assertFalse(Check.equals(null, new StringBuilder("0")));
-        assertFalse(Check.equals("0", null));
+        assertFalse(Check.equals((CharSequence) null, new StringBuilder("0")));
+        assertFalse(Check.equals("0", (CharSequence) null));
     }
 
     @Test
@@ -150,47 +150,51 @@ class CheckTest {
 
     @Test
     void contentEqualsCharSequence() {
-        assertTrue(Check.contentEquals((CharSequence) null, (char[]) null));
-        assertTrue(Check.contentEquals("", new char[]{}));
-        assertTrue(Check.contentEquals("A", new char[]{'A'}));
-        assertTrue(Check.contentEquals("ABC", new char[]{'A', 'B', 'C'}));
-        assertFalse(Check.contentEquals((CharSequence) null, new char[]{}));
-        assertFalse(Check.contentEquals("Ab", new char[]{'A', 'B'}));
+        assertTrue(Check.equals((CharSequence) null, (char[]) null));
+        assertTrue(Check.equals("", new char[]{}));
+        assertTrue(Check.equals("A", new char[]{'A'}));
+        assertTrue(Check.equals("ABC", new char[]{'A', 'B', 'C'}));
+        assertTrue(Check.equals("你好, 世界", new char[]{'你', '好', ',', ' ', '世', '界'}));
+        assertTrue(Check.equals("\uD83D\uDE2F", new char[]{'\uD83D', '\uDE2F'}));
+        assertFalse(Check.equals((CharSequence) null, new char[]{}));
+        assertFalse(Check.equals("Ab", new char[]{'A', 'B'}));
         // Reverse
-        assertTrue(Check.contentEquals((char[]) null, (CharSequence) null));
-        assertTrue(Check.contentEquals(new char[]{}, ""));
-        assertTrue(Check.contentEquals(new char[]{'A'}, "A"));
-        assertTrue(Check.contentEquals(new char[]{'A', 'B', 'C'}, "ABC"));
-        assertFalse(Check.contentEquals(new char[]{}, (CharSequence) null));
-        assertFalse(Check.contentEquals(new char[]{'A', 'B'}, "Ab"));
+        assertTrue(Check.equals((char[]) null, (CharSequence) null));
+        assertTrue(Check.equals(new char[]{}, ""));
+        assertTrue(Check.equals(new char[]{'A'}, "A"));
+        assertTrue(Check.equals(new char[]{'A', 'B', 'C'}, "ABC"));
+        assertTrue(Check.equals(new char[]{'你', '好', ',', ' ', '世', '界'}, "你好, 世界"));
+        assertTrue(Check.equals(new char[]{'\uD83D', '\uDE2F'}, "\uD83D\uDE2F"));
+        assertFalse(Check.equals(new char[]{}, (CharSequence) null));
+        assertFalse(Check.equals(new char[]{'A', 'B'}, "Ab"));
     }
 
     @Test
     void contentEqualsCharacter() {
-        assertTrue(Check.contentEqualsAsChar((Character) null, (Object) null));
-        assertTrue(Check.contentEqualsAsChar('A', 'A'));
-        assertTrue(Check.contentEqualsAsChar('A', "A"));
-        assertTrue(Check.contentEqualsAsChar('A', 65));
-        assertFalse(Check.contentEqualsAsChar('\0', (Object) null));
-        assertFalse(Check.contentEqualsAsChar('A', 'B'));
-        assertFalse(Check.contentEqualsAsChar('A', "B"));
-        assertFalse(Check.contentEqualsAsChar('A', "ABC"));
-        assertFalse(Check.contentEqualsAsChar('A', 55));
+        assertTrue(Check.equalsAsChar(null, (Object) null));
+        assertTrue(Check.equalsAsChar('A', 'A'));
+        assertTrue(Check.equalsAsChar('A', "A"));
+        assertTrue(Check.equalsAsChar('A', 65));
+        assertFalse(Check.equalsAsChar('\0', (Object) null));
+        assertFalse(Check.equalsAsChar('A', 'B'));
+        assertFalse(Check.equalsAsChar('A', "B"));
+        assertFalse(Check.equalsAsChar('A', "ABC"));
+        assertFalse(Check.equalsAsChar('A', 55));
     }
 
     @Test
     void contentEqualsNumberAndCharSequence() {
-        assertTrue(Check.contentEqualsAsNumber((Number) null, (CharSequence) null));
-        assertTrue(Check.contentEqualsAsNumber(23, "23.00"));
-        assertTrue(Check.contentEqualsAsNumber(23.001, "23.001000"));
-        assertFalse(Check.contentEqualsAsNumber((Number) null, ""));
-        assertFalse(Check.contentEqualsAsNumber(new BigDecimal("2.001"), "AAA"));
-        assertFalse(Check.contentEqualsAsNumber(2, "AAA"));
+        assertTrue(Check.equalsAsNumber((Number) null, (CharSequence) null));
+        assertTrue(Check.equalsAsNumber(23, "23.00"));
+        assertTrue(Check.equalsAsNumber(23.001, "23.001000"));
+        assertFalse(Check.equalsAsNumber((Number) null, ""));
+        assertFalse(Check.equalsAsNumber(new BigDecimal("2.001"), "AAA"));
+        assertFalse(Check.equalsAsNumber(2, "AAA"));
         // Reverse
-        assertTrue(Check.contentEqualsAsNumber((CharSequence) null, (Number) null));
-        assertTrue(Check.contentEqualsAsNumber("23.00", 23));
-        assertTrue(Check.contentEqualsAsNumber("23.001000", 23.001));
-        assertFalse(Check.contentEqualsAsNumber("AAA", 2));
+        assertTrue(Check.equalsAsNumber((CharSequence) null, (Number) null));
+        assertTrue(Check.equalsAsNumber("23.00", 23));
+        assertTrue(Check.equalsAsNumber("23.001000", 23.001));
+        assertFalse(Check.equalsAsNumber("AAA", 2));
     }
 
     @Test
@@ -227,7 +231,7 @@ class CheckTest {
 
     @Test
     void contentEqualsSet() {
-        assertTrue(Check.contentEqualsAsSet((Collection<Object>) null, null));
+        assertTrue(Check.contentEqualsAsSet(null, null));
         assertTrue(Check.contentEqualsAsSet(Collections.emptySet(), Collections.emptyList()));
         assertTrue(Check.contentEqualsAsSet(toSet("A", "B"), Arrays.asList("B", "A")));
         assertTrue(Check.contentEqualsAsSet(toSet("A"), Arrays.asList("A", "A")));

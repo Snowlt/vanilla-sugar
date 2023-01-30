@@ -16,7 +16,7 @@ class SliceTest {
     void sliceForwardTest() {
         int[] a = toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         int[] a2 = toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        System.out.println("========正向");
+        // 正向
         assertArrayEquals(toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), slice(a, null, null, null));
         assertArrayEquals(toArray(0, 3, 6, 9), slice(a, null, null, 3));
         assertArrayEquals(toArray(0, 3, 6, 9), slice(a, 0, 10, 3));
@@ -28,7 +28,7 @@ class SliceTest {
         assertArrayEquals(toArray(2, 4, 6, 8, 10), slice(a, -9, null, 2));
         assertArrayEquals(toArray(10), slice(a, -1, null, 3));
         assertArrayEquals(toArray(9), slice(a, -2, -1, 1));
-        System.out.println("========正向2");
+        // 正向2
         assertArrayEquals(toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9), slice(a2, 0, null, 1));
         assertArrayEquals(toArray(0, 2, 4, 6, 8), slice(a2, null, null, 2));
         assertArrayEquals(toArray(0, 2, 4, 6, 8), slice(a2, 0, 10, 2));
@@ -37,14 +37,19 @@ class SliceTest {
         assertArrayEquals(toArray(1, 3, 5, 7, 9), slice(a2, 1, null, 2));
         assertArrayEquals(toArray(1, 3, 5, 7, 9), slice(a2, 1, 10, 2));
         assertArrayEquals(toArray(1, 3, 5, 7), slice(a2, 1, 9, 2));
-        System.out.println("========正向空结果");
+    }
+
+    @Test
+    void sliceForwardSpecialTest() {
+        int[] a = toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+        // 正向空结果
         assertArrayEquals(toArray(), slice(a, 0, 0, 1));
         assertArrayEquals(toArray(), slice(a, 1, 1, 1));
         assertArrayEquals(toArray(), slice(a, 2, 2, 3));
         assertArrayEquals(toArray(), slice(a, -1, -1, 1));
         assertArrayEquals(toArray(), slice(a, -2, -2, 1));
         assertArrayEquals(toArray(), slice(a, 2, 1, 3));
-        System.out.println("========正向越界");
+        // 正向越界
         assertArrayEquals(toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), slice(a, null, 12, null));
         assertArrayEquals(toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), slice(a, -20, 20, null));
         assertArrayEquals(toArray(0, 3, 6, 9), slice(a, null, 12, 3));
@@ -57,14 +62,14 @@ class SliceTest {
     void sliceBackwardTest() {
         int[] a = toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
         int[] a2 = toArray(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
-        System.out.println("========逆向切1");
+        // 逆向切1
         assertArrayEquals(toArray(10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0), slice(a, null, null, -1));
         assertArrayEquals(toArray(10, 7, 4, 1), slice(a, null, null, -3));
         assertArrayEquals(toArray(10, 7, 4), slice(a, 10, 3, -3));
         assertArrayEquals(toArray(10, 7, 4), slice(a, -1, 3, -3));
         assertArrayEquals(toArray(10, 7, 4), slice(a, -1, -9, -3));
         assertArrayEquals(toArray(9), slice(a, -2, -4, -2));
-        System.out.println("========逆向切2");
+        // 逆向切2
         assertArrayEquals(toArray(9, 7, 5, 3, 1), slice(a2, null, null, -2));
         assertArrayEquals(toArray(9, 7, 5, 3, 1), slice(a2, 10, 0, -2));
         assertArrayEquals(toArray(9, 7, 5, 3, 1), slice(a2, 9, 0, -2));
@@ -73,14 +78,14 @@ class SliceTest {
         assertArrayEquals(toArray(8, 6, 4, 2), slice(a2, -2, -10, -2));
         assertArrayEquals(toArray(8, 6, 4, 2, 0), slice(a2, -2, null, -2));
         assertArrayEquals(toArray(8, 6, 4, 2, 0), slice(a2, -2, -11, -2));
-        System.out.println("========逆向空结果");
+        // 逆向空结果
         assertArrayEquals(toArray(), slice(a, 1, 1, -1));
         assertArrayEquals(toArray(), slice(a, 0, 0, -1));
         assertArrayEquals(toArray(), slice(a, 0, 3, -1));
         assertArrayEquals(toArray(), slice(a, 2, 2, -3));
         assertArrayEquals(toArray(), slice(a, -1, -1, -1));
         assertArrayEquals(toArray(), slice(a, -5, -5, -3));
-        System.out.println("========逆向越界");
+        // 逆向越界
         assertArrayEquals(toArray(10, 7, 4), slice(a, 12, 3, -3));
         assertArrayEquals(toArray(), slice(a, -12, 3, -3));
     }
