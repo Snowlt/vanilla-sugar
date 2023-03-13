@@ -3,10 +3,23 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    <packaging>pom</packaging>
     <groupId>xyz.udw</groupId>
-    <artifactId>vanilla-sugar-toolkit</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <artifactId>vanilla-sugar-parent</artifactId>
+    <version>1.0</version>
+    <name>Vanilla Sugar</name>
+    <description>A light-weight simplification toolkit for Java</description>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <modules>
+        <module>vanilla-sugar-toolkit</module>
+    </modules>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -16,11 +29,12 @@
         </dependency>
     </dependencies>
 
-    <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://choosealicense.com/licenses/mit</url>
+        </license>
+    </licenses>
 
     <build>
         <plugins>
