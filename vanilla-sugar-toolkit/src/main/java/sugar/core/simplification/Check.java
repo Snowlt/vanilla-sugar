@@ -16,7 +16,7 @@ import java.util.function.IntFunction;
  * <p><i>这个类中提供了一些类似其他语言的写法或逻辑</i></p>
  *
  * @author SnowLT
- * @version 1.7
+ * @version 1.8
  */
 public class Check {
 
@@ -389,7 +389,21 @@ public class Check {
     }
 
     /**
-     * 判断左右两个浮点数的数值是否相同，可避免类型转换时的精度问题（使用 BigDecimal 封装）
+     * 如果参数彼此相等返回 true，否则 false，和 {@link Objects#equals(Object, Object)} 相同。
+     * 如果两个参数都是 null 则返回 true，否则调用 {@code a.equals(b)} 来确定相等性。
+     *
+     * @param a 对象
+     * @param b 与 a 进行比较的对象
+     * @return 如果参数彼此相等返回 true，否则 false
+     * @see Objects#equals(Object, Object)
+     */
+    public static boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
+    }
+
+    /**
+     * 判断左右两个对象的数值是否相同，忽略具体的类型。
+     * 可避免类型转换时的精度问题（基于 BigDecimal 判断）
      * <pre>
      * e.g.
      *     equals(23, 23) -> true
@@ -405,7 +419,7 @@ public class Check {
      * @param right 右
      * @return 两者内容相同时返回 true
      */
-    public static boolean equals(Number left, Number right) {
+    public static boolean equalsAsNumber(Number left, Number right) {
         // 空值检测
         if (left == right) return true;
         if (left == null || right == null) return false;
@@ -435,13 +449,13 @@ public class Check {
      * @param right 右
      * @return 两者内容相同时返回 true
      */
-    public static boolean equals(CharSequence left, CharSequence right) {
+    public static boolean contentEquals(CharSequence left, CharSequence right) {
         // 自身检测和空值检测
         if (left == right) return true;
         if (left == null || right == null) return false;
         // 如果存在 String，使用 String 的 contentEquals 方法
-        if (left instanceof String) return ((String) left).contentEquals(right);
-        return right.toString().contentEquals(left);
+        if (left instanceof String && right instanceof String) return left.equals(right);
+        return left.toString().contentEquals(right);
     }
 
     /**
@@ -457,7 +471,7 @@ public class Check {
      * @param right 右（字符数组）
      * @return 两者内容相同时返回 true
      */
-    public static boolean equals(CharSequence left, char[] right) {
+    public static boolean equalsAsString(CharSequence left, char[] right) {
         // 空值检测
         if (left == null && right == null) {
             return true;
@@ -482,10 +496,10 @@ public class Check {
      * @param left  左（字符数组）
      * @param right 右（字符序列）
      * @return 两者内容相同时返回 true
-     * @see #equals(CharSequence, char[])
+     * @see #equalsAsString(CharSequence, char[])
      */
-    public static boolean equals(char[] left, CharSequence right) {
-        return equals(right, left);
+    public static boolean equalsAsString(char[] left, CharSequence right) {
+        return equalsAsString(right, left);
     }
 
     /**
@@ -527,7 +541,7 @@ public class Check {
         // 数字
         if (right instanceof Number) {
             return isIntegerType(right) ? ch == ((Number) right).longValue() :
-                    equals((int) ch, (Number) right);
+                    equalsAsNumber((int) ch, (Number) right);
         }
         return false;
     }
@@ -554,7 +568,7 @@ public class Check {
         // 尝试将字符串转为数字
         try {
             BigDecimal decimal = new BigDecimal(right.toString());
-            return equals(decimal, left);
+            return equalsAsNumber(decimal, left);
         } catch (Exception e) {
             return false;
         }
@@ -580,17 +594,18 @@ public class Check {
 
 
     /**
-     * 判断两个对象的内容是否相同，会根据类型自动匹配调用以下方法：
+     * 判断两个对象的内容是否相同，会根据类型自动按顺序匹配并调用以下方法：
      * <ol>
-     *     <li>{@link #equals(Number, Number)}</li>
-     *     <li>{@link #equals(CharSequence, CharSequence)}</li>
+     *     <li>{@link #equalsAsNumber(Number, Number)}</li>
+     *     <li>{@link #contentEquals(CharSequence, CharSequence)}</li>
      *     <li>{@link #equalsAsNumber(Number, CharSequence)} 和 {@link #equalsAsNumber(CharSequence, Number)}</li>
-     *     <li>{@link #equals(CharSequence, char[])} 和 {@link #equals(char[], CharSequence)}</li>
-     *     <li>{@link #equalsAsChar(Character, Object)} </li>
+     *     <li>{@link #equalsAsString(CharSequence, char[])} 和 {@link #equalsAsString(char[], CharSequence)}</li>
+     *     <li>{@link #equalsAsIterable(Object, Object)}</li>
+     *     <li>{@link #equalsAsChar(Character, Object)}</li>
      * </ol>
      * 如果匹配不到以上方法，则会调用 {@link Object#equals(Object)} 作为结果
      * <p>
-     * <i>如果需要判断两个集合中的内容是否相同，请使用 {@link #collectionEquals(Collection, Collection)}</i>
+     * <i>如果需要用自定义的方式比较两个集合中的内容是否相同，可使用 {@link #contentEquals(Collection, Collection, BiPredicate)}</i>
      * </p>
      *
      * @param left  任意对象
@@ -600,19 +615,21 @@ public class Check {
     public static boolean contentEquals(Object left, Object right) {
         if (left == right) return true;
         if (left == null || right == null) return false;
-        Class<?> c1 = left.getClass();
-        Class<?> c2 = right.getClass();
         // 都是数字（此处已经被自动装箱，不用处理基本数据类型）
-        if (left instanceof Number && right instanceof Number) return equals((Number) left, (Number) right);
+        if (left instanceof Number && right instanceof Number) return equalsAsNumber((Number) left, (Number) right);
         // 字符串和其他比较
         if (left instanceof CharSequence) {
-            if (right instanceof CharSequence) return equals((CharSequence) left, (CharSequence) right);
+            if (right instanceof CharSequence) return contentEquals((CharSequence) left, (CharSequence) right);
             if (right instanceof Number) return equalsAsNumber((Number) right, (CharSequence) left);
-            if (right instanceof char[]) return equals((CharSequence) left, (char[]) right);
+            if (right instanceof char[]) return equalsAsString((CharSequence) left, (char[]) right);
         } else if (right instanceof CharSequence) {
             if (left instanceof Number) return equalsAsNumber((Number) left, (CharSequence) right);
-            if (left instanceof char[]) return equals((CharSequence) right, (char[]) left);
+            if (left instanceof char[]) return equalsAsString((CharSequence) right, (char[]) left);
         }
+        Class<?> c1 = left.getClass();
+        Class<?> c2 = right.getClass();
+        if ((left instanceof Iterable || c1.isArray()) && (right instanceof Iterable || c2.isArray()))
+            return equalsAsIterable(left, right, Objects::equals);
         // 左右存在字符类型
         if (c1 == Character.class) {
             return equalsAsChar((Character) left, right);
@@ -636,7 +653,7 @@ public class Check {
      *
      * @return 两者内容相同时返回 true
      */
-    public static <T> boolean contentEqualsAsSet(Collection<T> left, Collection<T> right) {
+    public static <T> boolean equalsAsSet(Collection<T> left, Collection<T> right) {
         if (left == right) return true;
         if (left == null || right == null) return false;
         Set<T> set1 = left instanceof Set ? ((Set<T>) left) : new HashSet<>(left);
@@ -667,8 +684,8 @@ public class Check {
      * @return 左右的长度相等，且对应位置元素内容相同时返回 true
      * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组 时抛出
      */
-    public static boolean contentEqualsAsCollection(Object left, Object right) {
-        return contentEqualsAsCollection(left, right, Objects::equals);
+    public static boolean equalsAsIterable(Object left, Object right) {
+        return equalsAsIterable(left, right, Objects::equals);
     }
 
     /**
@@ -679,7 +696,7 @@ public class Check {
      * <ul>
      *     <li>{@link Collection}</li>
      *     <li>{@link Iterable}</li>
-     *     <li>{@code Object[]}, {@code int[]} 等对象数组和基本类型数组</li>
+     *     <li>{@code Object[]} 对象数组, {@code int[]} 等基本类型数组</li>
      * </ul>
      * 判断元素是否相同时使用 {@code equalsPredicate} 参数指定的 {@link java.util.function.BiPredicate} 进行判断
      * </p>
@@ -690,20 +707,20 @@ public class Check {
      * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组，或 equalsPredicate 为 null 时抛出
      */
     @SuppressWarnings("unchecked")
-    public static boolean contentEqualsAsCollection(Object left, Object right,
-                                                    BiPredicate<Object, Object> equalsPredicate) {
+    public static boolean equalsAsIterable(Object left, Object right,
+                                           BiPredicate<Object, Object> equalsPredicate) {
         if (equalsPredicate == null) throw new IllegalArgumentException("equalsPredicate cannot be null");
         if (left == right) return true;
         if (left == null || right == null) return false;
         Iterable<?> l = tryWrappingInCollection(left);
         Iterable<?> r = tryWrappingInCollection(right);
         return (l instanceof Collection && r instanceof Collection) ?
-                collectionEquals((Collection<Object>) l, (Collection<Object>) r, equalsPredicate) :
+                contentEquals((Collection<Object>) l, (Collection<Object>) r, equalsPredicate) :
                 contentEqualsByIteration((Iterable<Object>) l, (Iterable<Object>) r, equalsPredicate);
     }
 
     /**
-     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素内容是否相同（元素使用
+     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素(通过 {@link Collection#iterator()} 获取)内容是否相同（元素使用
      * {@link Objects#equals(Object, Object)} 进行比较）
      *
      * <pre>
@@ -718,12 +735,12 @@ public class Check {
      * @param right 集合
      * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
      */
-    public static boolean collectionEquals(Collection<?> left, Collection<?> right) {
-        return collectionEquals(left, right, Objects::equals);
+    public static boolean contentEquals(Collection<?> left, Collection<?> right) {
+        return contentEquals(left, right, Objects::equals);
     }
 
     /**
-     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素内容是否相同
+     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素(通过 {@link Collection#iterator()} 获取)内容是否相同
      * <p>在判断元素是否相同时使用 {@code equalsPredicate} 参数指定的 {@link java.util.function.BiPredicate} 进行判断</p>
      *
      * @param left            集合
@@ -732,8 +749,8 @@ public class Check {
      * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
      * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组，或 equalsPredicate 为 null 时抛出
      */
-    public static <T1, T2> boolean collectionEquals(Collection<T1> left, Collection<T2> right,
-                                                    BiPredicate<T1, T2> equalsPredicate) {
+    public static <T1, T2> boolean contentEquals(Collection<T1> left, Collection<T2> right,
+                                                 BiPredicate<T1, T2> equalsPredicate) {
         if (equalsPredicate == null) throw new IllegalArgumentException("equalsPredicate cannot be null");
         if (left == right) return true;
         if (left == null || right == null || left.size() != right.size()) return false;
