@@ -16,7 +16,7 @@ import java.util.function.IntFunction;
  * <p><i>这个类中提供了一些类似其他语言的写法或逻辑</i></p>
  *
  * @author SnowLT
- * @version 1.8
+ * @version 1.9
  */
 public class Check {
 
@@ -232,7 +232,7 @@ public class Check {
 
     /**
      * 判断数字是否不等于 0
-     * <p>备注：如果是用于比较 float / double 等浮点数计算结果，建议使用 {@link BigDecimal} 相关方法替代以避免精度问题</p>
+     * <p>备注：如果是用于比较 float / double 等浮点数，建议使用 {@link BigDecimal} 相关方法或计算绝对值小于某个误差的方式 以避免精度问题</p>
      *
      * @param n 数字
      * @return 判断结果
@@ -242,6 +242,37 @@ public class Check {
         if (n instanceof BigDecimal) return BigDecimal.ZERO.compareTo((BigDecimal) n) != 0;
         if (n instanceof BigInteger) return BigInteger.ZERO.compareTo((BigInteger) n) != 0;
         return n.doubleValue() != 0.0;
+    }
+
+    /**
+     * 判断布尔值是否等于 false 或 null
+     *
+     * @param b 布尔值
+     * @return 判断结果
+     */
+    public static boolean notTrue(Boolean b) {
+        return b == null || !b;
+    }
+
+    /**
+     * 判断字符为结束符（ASCII 码 0）或 null
+     * <p><i>参考 C 语言的字符数组结尾</i></p>
+     *
+     * @param c 字符
+     * @return 字符为 ASCII 码 0 或 null 时返回 false，否则返回 true
+     */
+    public static boolean notTrue(Character c) {
+        return c == null || c == 0;
+    }
+
+    /**
+     * 判断数字是否等于 0 或 null。{@code notTrue(n)} 等同于 {@code !isTrue(n)}
+     *
+     * @param n 数字
+     * @return 判断结果
+     */
+    public static boolean notTrue(Number n) {
+        return !isTrue(n);
     }
 
     /**
@@ -278,6 +309,17 @@ public class Check {
         if (o instanceof Character) return isTrue((Character) o);
         if (o instanceof Optional<?>) return notEmpty((Optional<?>) o);
         return true;
+    }
+
+    /**
+     * 判断传入的值是否为 null 或不等效于 true。{@code notTrue(object)} 等同于 {@code !isTrue(object)}
+     *
+     * @param o 被检测对象
+     * @return 值为 null 或不等效于 true 时返回 true
+     * @see #isTrue(Object)
+     */
+    public static boolean notTrue(Object o) {
+        return !isTrue(o);
     }
 
     /**
@@ -398,7 +440,18 @@ public class Check {
      * @see Objects#equals(Object, Object)
      */
     public static boolean equals(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
+        return a == b || (a != null && a.equals(b));
+    }
+
+    /**
+     * 如果参数彼此相等返回 false，否则 true。{@code notEquals(a, b)} 等同于 {@code !equals(a, b)}
+     *
+     * @param a 对象
+     * @param b 与 a 进行比较的对象
+     * @return 如果参数彼此相等返回 true，否则 false
+     */
+    public static boolean notEquals(Object a, Object b) {
+        return !equals(a, b);
     }
 
     /**

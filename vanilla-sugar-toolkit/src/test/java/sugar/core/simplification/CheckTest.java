@@ -1,15 +1,20 @@
 package sugar.core.simplification;
 
+import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.opentest4j.AssertionFailedError;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.MethodName.class)
 class CheckTest {
 
     @Test
@@ -37,26 +42,76 @@ class CheckTest {
 
     @Test
     void checkNumber() {
-        assertTrue(Check.isTrue((byte) -1));
-        assertTrue(Check.isTrue((short) -1));
-        assertTrue(Check.isTrue(-1));
-        assertTrue(Check.isTrue(-1L));
-        assertTrue(Check.isTrue(0.0000000001F));
-        assertTrue(Check.isTrue(0.0000000001));
-        assertFalse(Check.isTrue((byte) 0));
-        assertFalse(Check.isTrue((short) 0));
-        assertFalse(Check.isTrue(0));
-        assertFalse(Check.isTrue(0L));
-        assertFalse(Check.isTrue(0.00000000000F));
-        assertFalse(Check.isTrue(0.00000000000));
+        BiAssertion<Number> isTrue = new BiAssertion<>(true, Check::isTrue, false, Check::notTrue);
+        BiAssertion<Number> isFalse = new BiAssertion<>(false, Check::isTrue, true, Check::notTrue);
+        isTrue.test((byte) -1);
+        isTrue.test((short) -1);
+        isTrue.test(-1);
+        isTrue.test(-1L);
+        isTrue.test(0.0000000001F);
+        isTrue.test(0.0000000001);
+        isFalse.test((byte) 0);
+        isFalse.test((short) 0);
+        isFalse.test(0);
+        isFalse.test(0L);
+        isFalse.test(0.00000000000F);
+        isFalse.test(0.00000000000);
         // special types
-        assertTrue(Check.isTrue(new BigInteger("-1")));
-        assertFalse(Check.isTrue(new BigInteger("0")));
-        assertTrue(Check.isTrue(new BigDecimal("-1.00002")));
-        assertTrue(Check.isTrue(new BigDecimal("-0.0000001")));
-        assertFalse(Check.isTrue(new BigDecimal("0.0000000")));
-        assertTrue(Check.isTrue(new AtomicInteger(1)));
-        assertFalse(Check.isTrue(new AtomicInteger(0)));
+        isTrue.test(new BigInteger("-1"));
+        isTrue.test(new BigDecimal("-1.00002"));
+        isTrue.test(new BigDecimal("-0.0000001"));
+        isFalse.test(new BigInteger("0"));
+        isFalse.test(new BigDecimal("0.0000000"));
+        isTrue.test(new AtomicInteger(1));
+        isFalse.test(new AtomicInteger(0));
+    }
+
+    @Test
+    void checkBoolean() {
+        assertTrue(Check.isTrue(true));
+        assertFalse(Check.isTrue(false));
+        assertFalse(Check.isTrue((Boolean) null));
+        assertFalse(Check.notTrue(true));
+        assertTrue(Check.notTrue(false));
+        assertTrue(Check.notTrue((Boolean) null));
+    }
+
+    @Test
+    void checkChar() {
+        assertTrue(Check.isTrue('a'));
+        assertFalse(Check.isTrue('\0'));
+        assertFalse(Check.isTrue((Character) null));
+        assertFalse(Check.notTrue('a'));
+        assertTrue(Check.notTrue('\0'));
+        assertTrue(Check.notTrue((Character) null));
+    }
+
+    @Test
+    void checkObject() {
+        BiAssertion<Object> isTrue = new BiAssertion<>(true, Check::isTrue, false, Check::notTrue);
+        isTrue.test('a');
+        isTrue.test(12.34);
+        isTrue.test("123");
+        isTrue.test(new int[]{1, 2});
+        isTrue.test(Collections.singletonMap("any", new Object()));
+        isTrue.test(new Object());
+        BiAssertion<Object> isFalse = new BiAssertion<>(false, Check::isTrue, true, Check::notTrue);
+        isFalse.test(null);
+        isFalse.test(new BigDecimal("0.0000"));
+        isFalse.test(new StringBuilder());
+        isFalse.test('\0');
+        isFalse.test(Collections.emptyList());
+        isFalse.test(Collections.emptyMap());
+    }
+
+    @Test
+    void checkEquals() {
+        assertTrue(Check.equals(null, null));
+        assertTrue(Check.equals(1, 1));
+        assertTrue(Check.equals("aa", "aa"));
+        assertTrue(Check.notEquals("aa", "ab"));
+        assertTrue(Check.notEquals("aa", new Object()));
+        assertTrue(Check.notEquals(new Object(), null));
     }
 
     @Test
@@ -342,4 +397,29 @@ class CheckTest {
             return content.iterator();
         }
     }
+
+    public static class BiAssertion<T> {
+        private final Predicate<T> first, second;
+        private final boolean firstExpected, secondExcepted;
+
+        public BiAssertion(boolean firstExpected, Predicate<T> first, boolean secondExcepted, Predicate<T> second) {
+            this.firstExpected = firstExpected;
+            this.first = first;
+            this.secondExcepted = secondExcepted;
+            this.second = second;
+        }
+
+        public void test(T value) {
+            try {
+                assertEquals(firstExpected, first.test(value));
+                assertEquals(secondExcepted, second.test(value));
+            } catch (AssertionFailedError e) {
+                String msg = "Method return an unexpected value for parameter: " + value.toString() +
+                        ", parameter type: " + value.getClass().getName();
+                throw new AssertionFailedError(msg, e.getExpected(), e.getActual());
+            }
+        }
+
+    }
+
 }
