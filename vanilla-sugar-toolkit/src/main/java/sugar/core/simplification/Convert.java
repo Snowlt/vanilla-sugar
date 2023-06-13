@@ -1,5 +1,8 @@
 package sugar.core.simplification;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+
 /**
  * 辅助转换的工具
  * <p>可根据入参的类型和值，自动转换为其他类型</p>
@@ -295,10 +298,11 @@ public class Convert {
      * <p>
      * 根据 value 类型和值不同，以下情况会返回 true：
      * <ol>
-     *  <li>Boolean: 值为 true 时返回 true</li>
-     *  <li>Number: 值不等于 0 时返回 true</li>
+     *  <li>Boolean: 返回自身的值</li>
+     *  <li>Number: 不为 0 返回 {@code true}，为 0 返回 {@code false}</li>
+     *  <li>String 或 CharSequence: 如果字符串内容等于 <i>"true"</i>（忽略大小写）返回 {@code true}，否则返回 {@code false}</li>
      * </ol>
-     * 其他情况都会返回 false
+     * 传入 {@code null} 值和其他情况都会返回 false
      * </p>
      *
      * @param value 值
@@ -314,12 +318,12 @@ public class Convert {
      * <p>
      * 根据 value 类型不同，返回结果有以下情况：
      *  <ol>
-     *  <li>null: 返回 <i>默认值</i></li>
+     *  <li>{@code null} 值: 返回 {@code false}</li>
      *  <li>Boolean: 返回自身的值</li>
-     *  <li>Number: 不为 0 返回 true，为 0 返回 false</li>
-     *  <li>String 或 CharSequence: 如果字符串内容等于 <i>"true"</i>（忽略大小写）返回 true，否则返回 false</li>
-     *  <li>其他情况: 返回 <i>默认值</i></li>
+     *  <li>Number: 不为 0 返回 {@code true}，为 0 返回 {@code false}</li>
+     *  <li>CharSequence: 如果字符串内容等于 <i>"true"</i>（忽略大小写）返回 {@code true}，否则返回 {@code false}</li>
      *  </ol>
+     *  其他情况视为无法直接转换为布尔类型，返回 <i>默认值</i></li>
      * </p>
      * <pre>
      * 例如：
@@ -327,8 +331,9 @@ public class Convert {
      *     Convert.toBoolean(0, null) -> false
      *     Convert.toBoolean("TruE", null) -> true
      *     Convert.toBoolean("yes", null) -> false
-     *     Convert.toBoolean(null, true) -> true
-     *     Convert.toBoolean(new Object, null) -> null
+     *     Convert.toBoolean(null, null) -> false
+     *     Convert.toBoolean(new HashMap<>(), null) -> null
+     *     Convert.toBoolean(new Object, true) -> true
      * </pre>
      *
      * @param value        值
@@ -336,11 +341,13 @@ public class Convert {
      * @return 转换后的结果
      */
     public static Boolean toBoolean(Object value, Boolean defaultValue) {
-        if (value == null) return defaultValue;
+        if (value == null) return false;
         if (value instanceof Boolean) return (Boolean) value;
         if (value instanceof Number) {
-            Number n = (Number) value;
-            return n.longValue() != 0 || n.doubleValue() != 0.0;
+            if (value instanceof BigDecimal) return !BigDecimal.ZERO.equals(value);
+            if (value instanceof BigInteger) return !BigInteger.ZERO.equals(value);
+            if (value instanceof Float) return !value.equals(0f);
+            return ((Number) value).doubleValue() != 0.0;
         }
         if (value instanceof CharSequence) {
             CharSequence str = (CharSequence) value;

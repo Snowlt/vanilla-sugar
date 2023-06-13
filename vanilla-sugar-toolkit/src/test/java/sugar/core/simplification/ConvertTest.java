@@ -3,6 +3,8 @@ package sugar.core.simplification;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,9 +57,8 @@ class ConvertTest {
     @Test
     void toBool() {
         // Return default
-        assertNull(Convert.toBoolean(null, null));
-        assertTrue(Convert.toBoolean(null, true));
-        assertFalse(Convert.toBoolean(null, false));
+        assertFalse(Convert.toBoolean(null, null));
+        assertFalse(Convert.toBoolean(null, true));
         // Parse string(not return default)
         final String sTrue = "tRuE";
         assertTrue(Convert.toBoolean(sTrue, null));
@@ -69,7 +70,9 @@ class ConvertTest {
         assertTrue(Convert.toBoolean(-1, null));
         assertTrue(Convert.toBoolean(new BigDecimal("0.0000001"), null));
         assertFalse(Convert.toBoolean(0, null));
+        assertFalse(Convert.toBoolean(0.0f, null));
         assertFalse(Convert.toBoolean(0.0, null));
+        assertFalse(Convert.toBoolean(new BigInteger("000"), null));
         // Boolean
         assertTrue(Convert.toBoolean(Boolean.TRUE, null));
         assertFalse(Convert.toBoolean(Boolean.FALSE, null));
@@ -77,6 +80,7 @@ class ConvertTest {
         assertNull(Convert.toBoolean('\0', null));
         assertNull(Convert.toBoolean('A', null));
         assertNull(Convert.toBoolean(new Object(), null));
+        assertNull(Convert.toBoolean(new HashMap<>(), null));
     }
 
     @Test
