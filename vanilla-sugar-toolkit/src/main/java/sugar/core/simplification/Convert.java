@@ -34,7 +34,8 @@ public class Convert {
      *  <li>Number: 返回强制转换为 int 后的值</li>
      *  <li>Boolean: true 返回 1，false 返回 0</li>
      *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
-     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>字符序列 CharSequence: 再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      *
@@ -48,11 +49,13 @@ public class Convert {
         if (value instanceof Number) return ((Number) value).intValue();
         if (value instanceof Boolean) return (boolean) value ? 1 : 0;
         if (value instanceof Character) return (int) (Character) value;
-        try {
-            return (int) Double.parseDouble(value.toString());
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof CharSequence) {
+            try {
+                return (int) Double.parseDouble(value.toString());
+            } catch (Exception ignored) {
+            }
         }
+        return defaultValue;
     }
 
     /**
@@ -75,7 +78,8 @@ public class Convert {
      *  <li>Number: 返回强制转换为 long 后的值</li>
      *  <li>Boolean: true 返回 1，false 返回 0</li>
      *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
-     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>字符序列 CharSequence: 再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      *
@@ -89,11 +93,13 @@ public class Convert {
         if (value instanceof Number) return ((Number) value).longValue();
         if (value instanceof Boolean) return (boolean) value ? 1L : 0;
         if (value instanceof Character) return (long) (Character) value;
-        try {
-            return (long) Double.parseDouble(value.toString());
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof CharSequence) {
+            try {
+                return (long) Double.parseDouble(value.toString());
+            } catch (Exception ignored) {
+            }
         }
+        return defaultValue;
     }
 
     /**
@@ -116,7 +122,8 @@ public class Convert {
      *  <li>Number: 返回强制转换为 byte 后的值</li>
      *  <li>Boolean: true 返回 1，false 返回 0</li>
      *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
-     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>字符序列 CharSequence: 再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      *
@@ -130,11 +137,13 @@ public class Convert {
         if (value instanceof Number) return ((Number) value).byteValue();
         if (value instanceof Boolean) return (byte) ((boolean) value ? 1 : 0);
         if (value instanceof Character) return (byte) (char) (Character) value;
-        try {
-            return (byte) Double.parseDouble(value.toString());
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof CharSequence) {
+            try {
+                return (byte) Double.parseDouble(value.toString());
+            } catch (Exception ignored) {
+            }
         }
+        return defaultValue;
     }
 
     /**
@@ -157,7 +166,8 @@ public class Convert {
      *  <li>Number: 返回强制转换为 short 后的值</li>
      *  <li>Boolean: true 返回 1，false 返回 0</li>
      *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
-     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>字符序列 CharSequence: 再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      *
@@ -171,11 +181,13 @@ public class Convert {
         if (value instanceof Number) return ((Number) value).shortValue();
         if (value instanceof Boolean) return (short) ((boolean) value ? 1 : 0);
         if (value instanceof Character) return (short) (char) (Character) value;
-        try {
-            return (short) Double.parseDouble(value.toString());
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof CharSequence) {
+            try {
+                return (short) Double.parseDouble(value.toString());
+            } catch (Exception ignored) {
+            }
         }
+        return defaultValue;
     }
 
     /**
@@ -198,7 +210,8 @@ public class Convert {
      *  <li>Number: 返回强制转换为 float 后的值</li>
      *  <li>Boolean: true 返回 1，false 返回 0</li>
      *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
-     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>字符序列 CharSequence: 再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      *
@@ -212,11 +225,13 @@ public class Convert {
         if (value instanceof Number) return ((Number) value).floatValue();
         if (value instanceof Boolean) return (boolean) value ? 1F : 0;
         if (value instanceof Character) return (float) (Character) value;
-        try {
-            return Float.parseFloat(value.toString());
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof CharSequence) {
+            try {
+                return Float.parseFloat(value.toString());
+            } catch (Exception ignored) {
+            }
         }
+        return defaultValue;
     }
 
     /**
@@ -239,7 +254,8 @@ public class Convert {
      *  <li>Number: 返回强制转换为 double 后的值</li>
      *  <li>Boolean: true 返回 1，false 返回 0</li>
      *  <li>Character: 返回字符的 ASCII 码（同char 显式转换为 int 后的值）</li>
-     *  <li>其他类型: 先通过 {@code toString()} 转为字符串，再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>字符序列 CharSequence: 再尝试解析为数字，解析失败则返回 <i>默认值</i></li>
+     *  <li>其他类型: 返回 <i>默认值</i></li>
      *  </ol>
      * </p>
      *
@@ -253,11 +269,13 @@ public class Convert {
         if (value instanceof Number) return ((Number) value).doubleValue();
         if (value instanceof Boolean) return (boolean) value ? 1.0 : 0;
         if (value instanceof Character) return (double) (Character) value;
-        try {
-            return Double.parseDouble(value.toString());
-        } catch (Exception e) {
-            return defaultValue;
+        if (value instanceof CharSequence) {
+            try {
+                return Double.parseDouble(value.toString());
+            } catch (Exception ignored) {
+            }
         }
+        return defaultValue;
     }
 
     /**
@@ -296,7 +314,7 @@ public class Convert {
     /**
      * 转换到布尔类型
      * <p>
-     * 根据 value 类型和值不同，以下情况会返回 true：
+     * 根据 value 类型和值不同，返回结果有以下情况：
      * <ol>
      *  <li>Boolean: 返回自身的值</li>
      *  <li>Number: 不为 0 返回 {@code true}，为 0 返回 {@code false}</li>
@@ -360,16 +378,6 @@ public class Convert {
                     (ch2 == 'u' || ch2 == 'U') && (ch3 == 'e' || ch3 == 'E'));
         }
         return defaultValue;
-    }
-
-    /**
-     * 枚举转为整数（序号），使用 {@link Enum#ordinal()}，如果传入值为 null 则返回 null
-     *
-     * @param enumerate 枚举
-     * @return 转换后的结果
-     */
-    public static Integer enumToInt(Enum<?> enumerate) {
-        return enumerate != null ? enumerate.ordinal() : null;
     }
 
     /**

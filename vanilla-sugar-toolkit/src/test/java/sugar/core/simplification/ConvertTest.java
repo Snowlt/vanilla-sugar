@@ -11,14 +11,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConvertTest {
 
     @Test
-    void enumConvert() {
-        assertEquals(0, Convert.enumToInt(TestEnum.ZERO));
-        assertEquals(1, Convert.enumToInt(TestEnum.ONE));
-        assertNotEquals(2, Convert.enumToInt(TestEnum.ONE));
-        assertNull(Convert.enumToInt(null));
-    }
-
-    @Test
     void toNumber() {
         assertEquals((byte) 0, Convert.toByte(null));
         assertEquals((short) 0, Convert.toShort(null));
