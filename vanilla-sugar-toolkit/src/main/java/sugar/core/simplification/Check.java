@@ -460,12 +460,12 @@ public class Check {
      * 可避免类型转换时的精度问题（基于 BigDecimal 判断）
      * <pre>
      * e.g.
-     *     equals(23, 23) -> true
-     *     equals(23, 23.0D) -> true
-     *     equals(12.34D, 12.34F) -> true
-     *     equals(2L, new BigDecimal("2.0")) -> true
-     *     equals(new BigDecimal("1.00"), new BigDecimal("1")) -> true
-     *     equals(23.0, (Number) null) -> false
+     *     equalsAsNumber(23, 23) -> true
+     *     equalsAsNumber(23, 23.0D) -> true
+     *     equalsAsNumber(12.34D, 12.34F) -> true
+     *     equalsAsNumber(2L, new BigDecimal("2.0")) -> true
+     *     equalsAsNumber(new BigDecimal("1.00"), new BigDecimal("1")) -> true
+     *     equalsAsNumber(23.0, (Number) null) -> false
      *     12.34D == 12.34F -> false（Java 原生写法，非此方法）
      * </pre>
      *
@@ -493,10 +493,10 @@ public class Check {
      * 判断左右两个字符序列的文本内容是否相同（区分大小写）
      * <pre>
      * e.g.
-     *     equals("1", "1") -> true
-     *     equals(new StringBuilder("AAA"), "AAA") -> true
-     *     equals("1.0", "1") -> false
-     *     equals("Abc", "abc") -> false
+     *     contentEquals("1", "1") -> true
+     *     contentEquals(new StringBuilder("AAA"), "AAA") -> true
+     *     contentEquals("1.0", "1") -> false
+     *     contentEquals("Abc", "abc") -> false
      * </pre>
      *
      * @param left  左
@@ -516,9 +516,9 @@ public class Check {
      * 判断左侧字符序列与右侧字符数组的文本内容是否相同（区分大小写）
      * <pre>
      * e.g.
-     *     equals("1A", new char[] {'1', 'A'}) -> true
-     *     equals(null, null) -> true
-     *     equals("sth", null) -> false
+     *     equalsAsString("1A", new char[] {'1', 'A'}) -> true
+     *     equalsAsString(null, null) -> true
+     *     equalsAsString("sth", null) -> false
      * </pre>
      *
      * @param left  左（字符序列）
@@ -542,9 +542,9 @@ public class Check {
      * 判断左侧字符序列与右侧字符数组的文本内容是否相同（重载方法，区分大小写）
      * <pre>
      * e.g.
-     *     equals(new char[] {'1', 'A'}, "1A") -> true
-     *     equals(null, null) -> true
-     *     equals(null, "sth") -> false
+     *     equalsAsString(new char[] {'1', 'A'}, "1A") -> true
+     *     equalsAsString(null, null) -> true
+     *     equalsAsString(null, "sth") -> false
      * </pre>
      *
      * @param left  左（字符数组）
@@ -699,10 +699,10 @@ public class Check {
      * <p>如果传入的对象不是 Set，会自动转化为 Set 后再进行比较</p>
      * <pre>
      * 例如有如下情况：
-     *      contentEqualsAsSet({"A", "B"}, {"B", "A"}) -> true
-     *      contentEqualsAsSet({"A"}, {"A", "A"}) -> true
-     *      contentEqualsAsSet({"A", "B"}, {"A", "B", "C"}) -> false
-     *      contentEqualsAsSet({"A", "B", "C"}, {"A", "B", "B"}) -> false
+     *      equalsAsSet({"A", "B"}, {"B", "A"}) -> true
+     *      equalsAsSet({"A"}, {"A", "A"}) -> true
+     *      equalsAsSet({"A", "B"}, {"A", "B", "C"}) -> false
+     *      equalsAsSet({"A", "B", "C"}, {"A", "B", "B"}) -> false
      * </pre>
      *
      * @return 两者内容相同时返回 true
@@ -728,9 +728,9 @@ public class Check {
      *
      * <pre>
      * 例如有如下情况：
-     *      contentEqualsAsCollection(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
-     *      contentEqualsAsCollection(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> false
-     *      contentEqualsAsCollection(new String[]{"A"}, Arrays.asList("A", "A")) -> false
+     *      equalsAsIterable(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
+     *      equalsAsIterable(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> false
+     *      equalsAsIterable(new String[]{"A"}, Arrays.asList("A", "A")) -> false
      * </pre>
      *
      * @param left  集合
@@ -779,10 +779,10 @@ public class Check {
      *
      * <pre>
      * 例如有如下情况：
-     *      collectionEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
-     *      collectionEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> false
-     *      collectionEquals({"A"}, {"A", "A"}) -> false
-     *      collectionEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
+     *      contentEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
+     *      contentEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> false
+     *      contentEquals({"A"}, {"A", "A"}) -> false
+     *      contentEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
      * </pre>
      *
      * @param left  集合
