@@ -206,7 +206,7 @@ public class Check {
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     public static boolean isEmpty(Optional<?> optional) {
-        return optional == null || !optional.isPresent();
+        return !notEmpty(optional);
     }
 
     /**
@@ -241,6 +241,7 @@ public class Check {
         if (n == null) return false;
         if (n instanceof BigDecimal) return BigDecimal.ZERO.compareTo((BigDecimal) n) != 0;
         if (n instanceof BigInteger) return BigInteger.ZERO.compareTo((BigInteger) n) != 0;
+        if (n instanceof Float) return !n.equals(0f);
         return n.doubleValue() != 0.0;
     }
 
@@ -297,13 +298,13 @@ public class Check {
      */
     public static boolean isTrue(Object o) {
         if (o == null) return false;
-        Class<?> cls = o.getClass();
-        if (o instanceof Boolean) return (boolean) o;
         if (o instanceof CharSequence) return notEmpty((CharSequence) o);
         if (o instanceof Collection) return notEmpty((Collection<?>) o);
         if (o instanceof Map) return notEmpty((Map<?, ?>) o);
-        if (cls.isArray()) return Array.getLength(o) > 0;
+        if (o instanceof Boolean) return (boolean) o;
         if (o instanceof Number) return isTrue((Number) o);
+        Class<?> cls = o.getClass();
+        if (cls.isArray()) return Array.getLength(o) > 0;
         if (o instanceof Iterable) return notEmpty((Iterable<?>) o);
         if (o instanceof Iterator) return notEmpty((Iterator<?>) o);
         if (o instanceof Character) return isTrue((Character) o);
