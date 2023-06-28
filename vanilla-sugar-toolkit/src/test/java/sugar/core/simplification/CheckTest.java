@@ -41,6 +41,24 @@ class CheckTest {
     }
 
     @Test
+    void checkBlankString() {
+        assertTrue(Check.allBlank("", null, " \t\n "));
+        assertTrue(Check.anyBlank("", "something"));
+        assertTrue(Check.anyBlank(" \t\n ", "something"));
+        assertTrue(Check.noneBlank("a", "b", "else"));
+        assertFalse(Check.allBlank("a", " \t\n "));
+        assertFalse(Check.anyBlank("a", "b", "else"));
+        assertFalse(Check.noneBlank("", null, " \t\n "));
+        // empty array
+        assertFalse(Check.allBlank());
+        assertFalse(Check.allBlank((CharSequence[]) null));
+        assertFalse(Check.anyBlank());
+        assertFalse(Check.anyBlank((CharSequence[]) null));
+        assertTrue(Check.noneBlank());
+        assertTrue(Check.noneBlank((CharSequence[]) null));
+    }
+
+    @Test
     void checkNumber() {
         BiAssertion<Number> isTrue = new BiAssertion<>(true, Check::isTrue, false, Check::notTrue);
         BiAssertion<Number> isFalse = new BiAssertion<>(false, Check::isTrue, true, Check::notTrue);
@@ -95,6 +113,7 @@ class CheckTest {
         isTrue.test(new int[]{1, 2});
         isTrue.test(Collections.singletonMap("any", new Object()));
         isTrue.test(new Object());
+        isTrue.test(Optional.of("any"));
         BiAssertion<Object> isFalse = new BiAssertion<>(false, Check::isTrue, true, Check::notTrue);
         isFalse.test(null);
         isFalse.test(new BigDecimal("0.0000"));
@@ -102,6 +121,7 @@ class CheckTest {
         isFalse.test('\0');
         isFalse.test(Collections.emptyList());
         isFalse.test(Collections.emptyMap());
+        isFalse.test(Optional.empty());
     }
 
     @Test

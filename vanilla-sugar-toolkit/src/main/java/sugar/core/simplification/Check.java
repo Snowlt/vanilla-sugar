@@ -68,6 +68,44 @@ public class Check {
     }
 
     /**
+     * 判断所有字符序列是否都满足：为 null 或长度为空或只包含空白字符
+     *
+     * @param targets 判断的对象
+     * @return 所有字符序列都满足条件时返回 true
+     */
+    public static boolean allBlank(CharSequence... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (CharSequence condition : targets) {
+            if (notBlank(condition)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断是否有任意一个字符序列满足：为 null 或长度为空或只包含空白字符
+     *
+     * @param targets 判断的对象
+     * @return 有任意一个字符序列满足条件时返回 true
+     */
+    public static boolean anyBlank(CharSequence... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (CharSequence condition : targets) {
+            if (!notBlank(condition)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断所有字符序列是否都满足：不为 null 且长度不为空且包含非{@linkplain Character#isWhitespace(char) 空白字符}
+     *
+     * @param targets 判断的对象
+     * @return 所有字符序列都满足条件时返回 true
+     */
+    public static boolean noneBlank(CharSequence... targets) {
+        return !anyBlank(targets);
+    }
+
+    /**
      * 判断字符序列是否不为空
      *
      * @param s 字符序列
@@ -128,17 +166,6 @@ public class Check {
     }
 
     /**
-     * 判断 Optional 是否包含值
-     *
-     * @param optional Optional
-     * @return 判断结果
-     */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static boolean notEmpty(Optional<?> optional) {
-        return optional != null && optional.isPresent();
-    }
-
-    /**
      * 判断字符序列是否为空
      *
      * @param s 字符串
@@ -196,17 +223,6 @@ public class Check {
      */
     public static boolean isEmpty(Iterator<?> iterator) {
         return iterator == null || !iterator.hasNext();
-    }
-
-    /**
-     * 判断 Optional 是否不含值(Optional.empty())
-     *
-     * @param optional Optional
-     * @return 判断结果
-     */
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
-    public static boolean isEmpty(Optional<?> optional) {
-        return !notEmpty(optional);
     }
 
     /**
@@ -308,7 +324,7 @@ public class Check {
         if (o instanceof Iterable) return notEmpty((Iterable<?>) o);
         if (o instanceof Iterator) return notEmpty((Iterator<?>) o);
         if (o instanceof Character) return isTrue((Character) o);
-        if (o instanceof Optional<?>) return notEmpty((Optional<?>) o);
+        if (o instanceof Optional<?>) return ((Optional<?>) o).isPresent();
         return true;
     }
 
