@@ -23,9 +23,8 @@ public class Check {
 
     /**
      * 检查字符序列是否不为 null 且长度不为空且包含非{@linkplain Character#isWhitespace(char) 空白字符}
-     *
      * <pre>
-     * e.g.
+     * 例如：
      *     notBlank(null) = false
      *     notBlank("") = false
      *     notBlank(" \t") = false
@@ -48,9 +47,8 @@ public class Check {
 
     /**
      * 检查字符序列是否为 null、长度为空或只包含{@linkplain Character#isWhitespace(char) 空白字符}
-     *
      * <pre>
-     * e.g.
+     * 例如：
      *     isBlank(null) = true
      *     isBlank("") = true
      *     isBlank(" \t") = true
@@ -236,8 +234,7 @@ public class Check {
     }
 
     /**
-     * 判断字符不为结束符（ASCII 码 0）
-     * <p><i>参考 C 语言的字符数组结尾</i></p>
+     * 判断字符不为结束符（ASCII 码 0，<i>C 语言的字符数组结尾</i>）
      *
      * @param c 字符
      * @return 不为 ASCII 码 0 时返回 true，否则返回 false
@@ -272,8 +269,7 @@ public class Check {
     }
 
     /**
-     * 判断字符为结束符（ASCII 码 0）或 null
-     * <p><i>参考 C 语言的字符数组结尾</i></p>
+     * 判断字符为结束符（ASCII 码 0，<i>C 语言的字符数组结尾</i>）或 null
      *
      * @param c 字符
      * @return 字符为 ASCII 码 0 或 null 时返回 false，否则返回 true
@@ -475,7 +471,7 @@ public class Check {
      * 判断左右两个对象的数值是否相同，忽略具体的类型。
      * 可避免类型转换时的精度问题（基于 BigDecimal 判断）
      * <pre>
-     * e.g.
+     * 例如：
      *     equalsAsNumber(23, 23) -> true
      *     equalsAsNumber(23, 23.0D) -> true
      *     equalsAsNumber(12.34D, 12.34F) -> true
@@ -508,7 +504,7 @@ public class Check {
     /**
      * 判断左右两个字符序列的文本内容是否相同（区分大小写）
      * <pre>
-     * e.g.
+     * 例如：
      *     contentEquals("1", "1") -> true
      *     contentEquals(new StringBuilder("AAA"), "AAA") -> true
      *     contentEquals("1.0", "1") -> false
@@ -531,7 +527,7 @@ public class Check {
     /**
      * 判断左侧字符序列与右侧字符数组的文本内容是否相同（区分大小写）
      * <pre>
-     * e.g.
+     * 例如：
      *     equalsAsString("1A", new char[] {'1', 'A'}) -> true
      *     equalsAsString(null, null) -> true
      *     equalsAsString("sth", null) -> false
@@ -555,9 +551,9 @@ public class Check {
     }
 
     /**
-     * 判断左侧字符序列与右侧字符数组的文本内容是否相同（重载方法，区分大小写）
+     * 判断左侧字符数组与右侧字符序列的文本内容是否相同（区分大小写）
      * <pre>
-     * e.g.
+     * 例如：
      *     equalsAsString(new char[] {'1', 'A'}, "1A") -> true
      *     equalsAsString(null, null) -> true
      *     equalsAsString(null, "sth") -> false
@@ -664,7 +660,7 @@ public class Check {
 
 
     /**
-     * 判断两个对象的内容是否相同，会根据类型自动按顺序匹配并调用以下方法：
+     * 判断两个对象的内容是否相同，会根据参数类型自动按顺序匹配并调用以下方法：
      * <ol>
      *     <li>{@link #equalsAsNumber(Number, Number)}</li>
      *     <li>{@link #contentEquals(CharSequence, CharSequence)}</li>
@@ -673,9 +669,9 @@ public class Check {
      *     <li>{@link #equalsAsIterable(Object, Object)}</li>
      *     <li>{@link #equalsAsChar(Character, Object)}</li>
      * </ol>
-     * 如果匹配不到以上方法，则会调用 {@link Object#equals(Object)} 作为结果
+     * 如果匹配不到以上方法，则会调用 {@link Objects#equals(Object, Object)} 作为结果
      * <p>
-     * <i>如果需要用自定义的方式比较两个集合中的内容是否相同，可使用 {@link #contentEquals(Collection, Collection, BiPredicate)}</i>
+     * <i>如果需要用自定义的方式比较两个集合中的内容是否相同，可使用 {@link #equalsAsList(Collection, Collection, BiPredicate)}</i>
      * </p>
      *
      * @param left  任意对象
@@ -785,42 +781,46 @@ public class Check {
         Iterable<?> l = tryWrappingInCollection(left);
         Iterable<?> r = tryWrappingInCollection(right);
         return (l instanceof Collection && r instanceof Collection) ?
-                contentEquals((Collection<Object>) l, (Collection<Object>) r, equalsPredicate) :
+                equalsAsList((Collection<Object>) l, (Collection<Object>) r, equalsPredicate) :
                 contentEqualsByIteration((Iterable<Object>) l, (Iterable<Object>) r, equalsPredicate);
     }
 
     /**
-     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素(通过 {@link Collection#iterator()} 获取)内容是否相同（元素使用
-     * {@link Objects#equals(Object, Object)} 进行比较）
-     *
+     * 将左右侧的 Collection 视为 List ，判断两者长度相同，且对应位置的元素也相同
+     * <p>判断时按 {@link Collection#iterator()} 的顺序由访问元素，对应位置的元素使用 {@link Objects#equals(Object, Object)} 进行比较</p>
+     * <i>同 Apache Commons Collections 4 的 ListUtils.isEqualList 方法</i>
      * <pre>
      * 例如有如下情况：
-     *      contentEquals({"A", "B", "A", "B"}, {"A", "B", "A", "B"}) -> true
-     *      contentEquals({12, 34, 12, 34}, {"12", "34", "12", "34"}) -> false
-     *      contentEquals({"A"}, {"A", "A"}) -> false
-     *      contentEquals({"A", "B", "C"}, {"C", "B", "A"}) -> false
+     *      equalsAsList(new TreeSet<>(Arrays.asList(2, 3, 1)), Arrays.asList(1, 2, 3)) -> true
+     *      equalsAsList(Arrays.asList("A", "B", "C"), Arrays.asList("C", "B", "A")) -> false
+     *      equalsAsList(Arrays.asList(12, 34), Arrays.asList("12", "34")) -> false
      * </pre>
      *
      * @param left  集合
      * @param right 集合
      * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
+     * @see #equalsAsList(Collection, Collection, BiPredicate)
+     * @see #equalsAsIterable(Object, Object)
      */
-    public static boolean contentEquals(Collection<?> left, Collection<?> right) {
-        return contentEquals(left, right, Objects::equals);
+    public static boolean equalsAsList(Collection<?> left, Collection<?> right) {
+        return equalsAsList(left, right, Objects::equals);
     }
 
     /**
-     * 判断左侧和右侧 {@link Collection} 长度和对应位置的元素(通过 {@link Collection#iterator()} 获取)内容是否相同
-     * <p>在判断元素是否相同时使用 {@code equalsPredicate} 参数指定的 {@link java.util.function.BiPredicate} 进行判断</p>
+     * 将左右侧的 Collection 视为 List ，判断两者长度相同，且对应位置的元素也相同
+     * <p>判断时按 {@link Collection#iterator()} 的顺序由访问元素，对应位置的元素使用 {@code equalsPredicate} 参数指定的
+     * {@link java.util.function.BiPredicate} 进行判断</p>
      *
      * @param left            集合
      * @param right           集合
      * @param equalsPredicate 用于判断两个对象是否相等，相同则返回 true，不同返回 false
      * @return 左右 size() 相等，且对应位置元素内容相同时返回 true
-     * @throws IllegalArgumentException 当对象不是 Collection / Iterable / 数组，或 equalsPredicate 为 null 时抛出
+     * @throws IllegalArgumentException equalsPredicate 为 null 时抛出
+     * @see #equalsAsList(Collection, Collection)
+     * @see #equalsAsIterable(Object, Object, BiPredicate)
      */
-    public static <T1, T2> boolean contentEquals(Collection<T1> left, Collection<T2> right,
-                                                 BiPredicate<T1, T2> equalsPredicate) {
+    public static <T1, T2> boolean equalsAsList(Collection<T1> left, Collection<T2> right,
+                                                BiPredicate<T1, T2> equalsPredicate) {
         if (equalsPredicate == null) throw new IllegalArgumentException("equalsPredicate cannot be null");
         if (left == right) return true;
         if (left == null || right == null || left.size() != right.size()) return false;
