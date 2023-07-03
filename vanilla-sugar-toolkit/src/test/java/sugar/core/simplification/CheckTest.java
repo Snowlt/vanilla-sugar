@@ -114,6 +114,7 @@ class CheckTest {
         isTrue.test(Collections.singletonMap("any", new Object()));
         isTrue.test(new Object());
         isTrue.test(Optional.of("any"));
+        isTrue.test(toEnumeration(Collections.singletonList(1)));
         BiAssertion<Object> isFalse = new BiAssertion<>(false, Check::isTrue, true, Check::notTrue);
         isFalse.test(null);
         isFalse.test(new BigDecimal("0.0000"));
@@ -122,6 +123,7 @@ class CheckTest {
         isFalse.test(Collections.emptyList());
         isFalse.test(Collections.emptyMap());
         isFalse.test(Optional.empty());
+        isFalse.test(toEnumeration(Collections.emptyList()));
     }
 
     @Test
@@ -396,6 +398,21 @@ class CheckTest {
     @SafeVarargs
     static <T> Queue<T> toQueue(T... elements) {
         return new ArrayDeque<>(Arrays.asList(elements));
+    }
+
+    public static <T> Enumeration<T> toEnumeration(Iterable<T> iterable) {
+        Iterator<T> iterator = iterable.iterator();
+        return new Enumeration<T>() {
+            @Override
+            public boolean hasMoreElements() {
+                return iterator.hasNext();
+            }
+
+            @Override
+            public T nextElement() {
+                return iterator.next();
+            }
+        };
     }
 
     public static class IterableWrapper<T> implements Iterable<T> {

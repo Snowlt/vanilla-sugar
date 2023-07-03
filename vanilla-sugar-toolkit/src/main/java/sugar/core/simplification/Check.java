@@ -299,6 +299,7 @@ public class Check {
      *     <li>{@link Iterator} 迭代器: 没有到达末尾时返回 true，否则返回 false(同 {@link Iterator#hasNext()})</li>
      *     <li>{@link Character} 字符: ASCII 码不等于 0 返回 true，否则返回 false(见 {@link #isTrue(Character)})</li>
      *     <li>{@link Optional}: 容器不为空返回 true，否则返回 false(同 {@link Optional#isPresent()})</li>
+     *     <li>{@link Enumeration}: 没有到达末尾时返回 true，否则返回 false(同 {@link Enumeration#hasMoreElements()})</li>
      *     <li>其他情况: 总是返回 true</li>
      * </ol></p>
      *
@@ -314,10 +315,11 @@ public class Check {
         if (o instanceof Number) return isTrue((Number) o);
         Class<?> cls = o.getClass();
         if (cls.isArray()) return Array.getLength(o) > 0;
-        if (o instanceof Iterable) return notEmpty((Iterable<?>) o);
-        if (o instanceof Iterator) return notEmpty((Iterator<?>) o);
+        if (o instanceof Iterable) return ((Iterable<?>) o).iterator().hasNext();
+        if (o instanceof Iterator) return ((Iterator<?>) o).hasNext();
         if (o instanceof Character) return isTrue((Character) o);
         if (o instanceof Optional<?>) return ((Optional<?>) o).isPresent();
+        if (o instanceof Enumeration) return ((Enumeration<?>) o).hasMoreElements();
         return true;
     }
 
@@ -539,14 +541,8 @@ public class Check {
      */
     public static boolean equalsAsString(CharSequence left, char[] right) {
         // 空值检测
-        if (left == null && right == null) {
-            return true;
-        } else if (left == null || right == null) {
-            return false;
-        }
-        if (left.length() != right.length) {
-            return false;
-        }
+        if (left == null && right == null) return true;
+        if (left == null || right == null || left.length() != right.length) return false;
         return new String(right).contentEquals(left);
     }
 
@@ -597,9 +593,9 @@ public class Check {
         // 空值检测
         if (left == right) return true;
         if (left == null || right == null) return false;
-        char ch = left;
         // 字符
-        if (right instanceof Character) return left == ((Character) right).charValue();
+        if (right instanceof Character) return left.charValue() == ((Character) right).charValue();
+        char ch = left;
         // 检测另一个对象的类型，并分类处理，字符序列
         if (right instanceof CharSequence) {
             CharSequence cs = (CharSequence) right;
