@@ -9,14 +9,11 @@ import java.util.function.IntFunction;
 
 /**
  * 整合了一些用于判断和检测方法
- * <p>
- * 此类中的方法主要是为了简化例如 if 等条件判断语句，支持类型自适应。
- * 没有特殊注明外，此类中的所有方法都支持空值检测（null安全）
- * </p>
- * <p><i>这个类中提供了一些类似其他语言的写法或逻辑</i></p>
+ * <p>此类中的方法主要是为了简化条件判断（例如 if 判断等），支持类型自适应。</p>
+ * <p>没有特殊注明外，此类中的所有方法都支持传入 {@code null} 值（即 null 安全）。</p>
  *
  * @author SnowLT
- * @version 1.9
+ * @version 2.0
  */
 public class Check {
 
@@ -480,6 +477,7 @@ public class Check {
      *     equalsAsNumber(23.0, (Number) null) -> false
      *     12.34D == 12.34F -> false（Java 原生写法，非此方法）
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  左
      * @param right 右
@@ -510,6 +508,7 @@ public class Check {
      *     contentEquals("1.0", "1") -> false
      *     contentEquals("Abc", "abc") -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  左
      * @param right 右
@@ -525,13 +524,14 @@ public class Check {
     }
 
     /**
-     * 判断左侧字符序列与右侧字符数组的文本内容是否相同（区分大小写）
+     * 判断左侧字符序列的内容与右侧字符数组表示的文本内容是否相同（区分大小写）
      * <pre>
      * 例如：
      *     equalsAsString("1A", new char[] {'1', 'A'}) -> true
      *     equalsAsString(null, null) -> true
      *     equalsAsString("sth", null) -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  左（字符序列）
      * @param right 右（字符数组）
@@ -551,13 +551,14 @@ public class Check {
     }
 
     /**
-     * 判断左侧字符数组与右侧字符序列的文本内容是否相同（区分大小写）
+     * 判断左侧字符数组表示的文本内容与右侧字符序列的内容是否相同（区分大小写）
      * <pre>
      * 例如：
      *     equalsAsString(new char[] {'1', 'A'}, "1A") -> true
      *     equalsAsString(null, null) -> true
      *     equalsAsString(null, "sth") -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  左（字符数组）
      * @param right 右（字符序列）
@@ -570,8 +571,7 @@ public class Check {
 
     /**
      * 判断左侧的字符和右侧对象的内容是否相同
-     * 支持和以下类型进行比较：
-     * 字符、字符序列（CharSequence）、数字（Number）
+     * <p>支持和以下类型进行比较：字符、字符序列（CharSequence）、数字（Number）</p>
      * <pre>
      * 右侧对象的类型有如下情况：
      * 与 Character/char 比较为常规的判断
@@ -587,6 +587,7 @@ public class Check {
      * 其他情况返回 false
      *      equalsAsChar('A', new Object()) -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  左（字符）
      * @param right 右（任意对象）
@@ -613,8 +614,8 @@ public class Check {
     }
 
     /**
-     * 判断左侧的数字和右侧字符串的内容是否相同
-     * 会尝试将字符串转为数字进行比较，如果失败则返回 false
+     * 判断左侧的数字和右侧文本表示的数值是否相同
+     * <p>会尝试将字符序列转为十进制数字进行比较，如果转换失败则返回 false</p>
      * <pre>
      * 例如有如下情况：
      *      equalsAsNumber(233, "233") -> true
@@ -622,10 +623,11 @@ public class Check {
      *      equalsAsNumber(1.0, "1.00") -> true
      *      equalsAsNumber(2, "AAA") -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  左（数字）
      * @param right 右（字符序列）
-     * @return 两者内容相同时返回 true
+     * @return 数字值相同时返回 true
      */
     public static boolean equalsAsNumber(Number left, CharSequence right) {
         // 空值检测
@@ -641,8 +643,8 @@ public class Check {
     }
 
     /**
-     * 判断左侧的字符串和右侧数字的内容是否相同（重载方法）
-     * 会尝试将字符串转为数字进行比较，如果失败则将数字转为字符串对比文本
+     * 判断左侧文本表示的数值和右侧的数字是否相同
+     * <p>会尝试将字符序列转为十进制数字进行比较，如果转换失败则返回 false</p>
      * <pre>
      * 例如有如下情况：
      *      equalsAsNumber("233", 233) -> true
@@ -650,8 +652,9 @@ public class Check {
      *      equalsAsNumber("1.00", 1.0) -> true
      *      equalsAsNumber("AAA", 2) -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
-     * @return 两者内容相同时返回 true
+     * @return 数字值相同时返回 true
      * @see #equalsAsNumber(Number, CharSequence)
      */
     public static boolean equalsAsNumber(CharSequence left, Number right) {
@@ -671,6 +674,7 @@ public class Check {
      * </ol>
      * 如果匹配不到以上方法，则会调用 {@link Objects#equals(Object, Object)} 作为结果
      * <p>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      * <i>如果需要用自定义的方式比较两个集合中的内容是否相同，可使用 {@link #equalsAsList(Collection, Collection, BiPredicate)}</i>
      * </p>
      *
@@ -711,11 +715,12 @@ public class Check {
      * <p>如果传入的对象不是 Set，会自动转化为 Set 后再进行比较</p>
      * <pre>
      * 例如有如下情况：
-     *      equalsAsSet({"A", "B"}, {"B", "A"}) -> true
-     *      equalsAsSet({"A"}, {"A", "A"}) -> true
-     *      equalsAsSet({"A", "B"}, {"A", "B", "C"}) -> false
-     *      equalsAsSet({"A", "B", "C"}, {"A", "B", "B"}) -> false
+     *      equalsAsSet(Arrays.asList(1, 2), Arrays.asList(2, 1)) -> true
+     *      equalsAsSet(Arrays.asList("A"), Arrays.asList("A", "A")) -> true
+     *      equalsAsSet(Arrays.asList(1, 2), Arrays.asList(1, 2, 3)) -> false
+     *      equalsAsSet(Arrays.asList("A", "B", "C"), Arrays.asList("A", "B", "B")) -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @return 两者内容相同时返回 true
      */
@@ -737,13 +742,13 @@ public class Check {
      *     <li>{@link Iterable}</li>
      *     <li>{@code Object[]}, {@code int[]} 等对象数组和基本类型数组</li>
      * </ul></p>
-     *
      * <pre>
      * 例如有如下情况：
      *      equalsAsIterable(new int[]{1, 2, 3}, Arrays.asList(1, 2, 3)) -> true
      *      equalsAsIterable(new int[]{12, 34, 12, 34}, Arrays.asList("12", "34", "12", "34")) -> false
      *      equalsAsIterable(new String[]{"A"}, Arrays.asList("A", "A")) -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  集合
      * @param right 集合
@@ -756,16 +761,16 @@ public class Check {
 
     /**
      * 判断左侧和右侧可迭代对象中，对应位置的元素内容是否相同，且两者长度相等
-     *
      * <p>
-     * 左侧和右侧支持传入：
+     * 左侧和右侧参数仅支持传入：
      * <ul>
      *     <li>{@link Collection}</li>
      *     <li>{@link Iterable}</li>
-     *     <li>{@code Object[]} 对象数组, {@code int[]} 等基本类型数组</li>
+     *     <li>{@code Object[]} 对象数组和 {@code int[]} 等基本类型数组</li>
      * </ul>
      * 判断元素是否相同时使用 {@code equalsPredicate} 参数指定的 {@link java.util.function.BiPredicate} 进行判断
      * </p>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  集合
      * @param right 集合
@@ -795,6 +800,7 @@ public class Check {
      *      equalsAsList(Arrays.asList("A", "B", "C"), Arrays.asList("C", "B", "A")) -> false
      *      equalsAsList(Arrays.asList(12, 34), Arrays.asList("12", "34")) -> false
      * </pre>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left  集合
      * @param right 集合
@@ -810,6 +816,7 @@ public class Check {
      * 将左右侧的 Collection 视为 List ，判断两者长度相同，且对应位置的元素也相同
      * <p>判断时按 {@link Collection#iterator()} 的顺序由访问元素，对应位置的元素使用 {@code equalsPredicate} 参数指定的
      * {@link java.util.function.BiPredicate} 进行判断</p>
+     * <p>如果参数 left 或 right 中有 null 值，则仅在两者都为 null 时返回 true，否则返回 false</p>
      *
      * @param left            集合
      * @param right           集合
