@@ -232,6 +232,11 @@ public class Check {
 
     /**
      * 判断字符不为结束符（ASCII 码 0，<i>C 语言的字符数组结尾</i>）
+     * <pre>
+     * 例如：
+     *      isTrue('A');  // -> true
+     *      isTrue('\0'); // -> false
+     * </pre>
      *
      * @param c 字符
      * @return 不为 ASCII 码 0 时返回 true，否则返回 false
@@ -242,6 +247,11 @@ public class Check {
 
     /**
      * 判断数字是否不等于 0
+     * <pre>
+     * 例如：
+     *      isTrue(0);    // -> false
+     *      isTrue(1.23); // -> true
+     * </pre>
      * <p>备注：如果是用于比较 float / double 等浮点数，建议使用 {@link BigDecimal} 相关方法或计算绝对值小于某个误差的方式 以避免精度问题</p>
      *
      * @param n 数字
@@ -356,6 +366,10 @@ public class Check {
      * <pre>
      *     allTrue(值1, 值2, ...)
      *     等同于： isTrue(值1) && isTrue(值2) && ...
+     * 例如：
+     *     allTrue(1, 2.0, 'A') // -> true
+     *     allTrue(0, 1, 'A')   // -> false
+     *     allTrue(null, 0, "") // -> false
      * </pre>
      *
      * @param targets 要判断的值
@@ -375,6 +389,10 @@ public class Check {
      * <pre>
      *     anyTrue(值1, 值2, ...)
      *     等同于： isTrue(值1) || isTrue(值2) || ...
+     * 例如：
+     *     Check.anyTrue(1, 2.0, 'A') // -> true
+     *     Check.anyTrue(0, 1, 'A')   // -> true
+     *     Check.anyTrue(null, 0, "") // -> false
      * </pre>
      *
      * @param targets 要判断的值
@@ -394,6 +412,10 @@ public class Check {
      * <pre>
      *     noneTrue(值1, 值2, ...)
      *     等同于： !isTrue(值1) || !isTrue(值2) || ...
+     * 例如：
+     *     noneTrue(1, 2.0, 'A') // -> false
+     *     noneTrue(0, 1, 'A')   // -> false
+     *     noneTrue(null, 0, "") // -> true
      * </pre>
      *
      * @param targets 要判断的值
@@ -406,6 +428,12 @@ public class Check {
 
     /**
      * 判断所有对象是否都为 null
+     * <pre>
+     * 例如：
+     *     allNull(0, 'A', "")       // -> false
+     *     allNull(null, 0, "")      // -> false
+     *     allNull(null, null, null) // -> true
+     * </pre>
      *
      * @param targets 判断的对象
      * @return 所有对象都为 null 时返回 true
@@ -420,6 +448,12 @@ public class Check {
 
     /**
      * 判断是否有任意一个对象为 null
+     * <pre>
+     * 例如：
+     *     anyNull(0, 'A', "")       // -> false
+     *     anyNull(null, 0, "")      // -> true
+     *     anyNull(null, null, null) // -> true
+     * </pre>
      *
      * @param targets 判断的对象
      * @return 有任意对象为 null 时返回 true
@@ -434,6 +468,12 @@ public class Check {
 
     /**
      * 判断所有对象是否都不为 null
+     * <pre>
+     * 例如：
+     *     noneNull(0, 'A', "")       // -> true
+     *     noneNull(null, 0, "")      // -> false
+     *     noneNull(null, null, null) // -> false
+     * </pre>
      *
      * @param targets 判断的对象
      * @return 所有对象都不为 null 时返回 true

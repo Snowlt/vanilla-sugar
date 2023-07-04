@@ -70,8 +70,8 @@ public class Indexer {
      *      at({1, 2, 3}, -1) -> 3
      * </pre>
      * <p>操作耗时最大为O(n)，n是对象的总长度</p>
-     * <p>查找元素时会通过 {@link Iterable#iterator()} 方法获取 {@link Iterator} 对象。
-     * 一般每次获取到的都是新对象，如果不是可能会导致未知的结果，例如抛出 {@link NoSuchElementException}</p>
+     * <p>查找元素时会通过 {@link Iterable#iterator()} 方法获取 {@link Iterator} 对象来进行迭代，直到找到目标位置。
+     * 因此实现类需要遵守每次调用 `iterator()` 都返回新迭代器的约定，否则会发生未知的问题，例如抛出 {@link NoSuchElementException}</p>
      *
      * @param <T>      泛型
      * @param iterable 可迭代对象
@@ -249,8 +249,8 @@ public class Indexer {
      *      atOrDefault(null, -1, 2) -> 2
      * </pre>
      * <p>操作耗时最大为O(n)，n是对象的总长度</p>
-     * <p>查找元素时会通过 {@link Iterable#iterator()} 方法获取 {@link Iterator} 对象。
-     * 一般每次获取到的都是新对象，如果不是可能会导致未知的结果，例如抛出 {@link NoSuchElementException}</p>
+     * <p>查找元素时会通过 {@link Iterable#iterator()} 方法获取 {@link Iterator} 对象来进行迭代，直到找到目标位置。
+     * 因此实现类需要遵守每次调用 `iterator()` 都返回新迭代器的约定，否则会发生未知的问题，例如抛出 {@link NoSuchElementException}</p>
      *
      * @param <T>          泛型
      * @param iterable     可迭代对象
