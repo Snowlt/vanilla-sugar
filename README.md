@@ -18,73 +18,72 @@ Vanilla Sugar Toolkit 是一个轻量级的 Java 工具类包。
 - `Check.isTrue` 提供了类似 JavaScript 中 `if (...)` 语法自动根据类型转为布尔值的效果
 - `Indexer` 类的方法提供了类似 Python/C# 中索引器的功能，能获取基本类型数组、对象数组、列表等对象中的元素，支持负数索引
 - `Slice` 类提供了 Python 中的切片操作
-
-  在 Python 中：
-    ```python
-    a = [1, 2, 3, 4, 5]
-    b = a[1:4]
-    c = a[::-1]
-    print(b) # b = [2, 3, 4]
-    print(c) # c = [5, 4, 3, 2, 1]
-    ```
-  使用工具类（Java）：
-    ```java
-    int[] a = new int[] {1, 2, 3, 4, 5};
-    int[] b = Slice.slice(s, 1, 4, null);
-    int[] c = Slice.slice(s, null, null, -1);
-    System.out.println(b); // b = [2, 3, 4]
-    System.out.println(b); // c = [5, 4, 3, 2, 1]
-    ```
 - ...
 
 ### 代码示例
 
+如果需要更为详细的内容，或想快速了解核心方法，可参考：[核心用法介绍](README-CORE-USAGE.md)
+
+以下代码简单展示了一些用法：
+
 ```java
-long[]array=new long[]{1L,2L,3L};
+public class Example {
+    public static void main(String[] args) {
+        long[] array = new long[]{1L, 2L, 3L};
+        // 判断数组不为空
+        System.out.println(array != null && array.length > 0); // true, 原生写法
+        System.out.println(Check.notEmpty(array));             // true, 使用工具类
 
-// 判断数组不为空
-        if(array!=null&&array.length>0){} // 原生写法
-        if(Check.notEmpty(array)){} // 使用工具类
+        String s = "123";
+        // 判断字符串不为空值
+        System.out.println(s != null && !s.isEmpty()); // true, 原生写法
+        System.out.println(Check.notEmpty(s));         // true, 使用工具类
+        // 获取字符串最后一个字符
+        s.charAt(s.length() - 1); // '3', 原生写法
+        Indexer.last(s);          // '3', 使用工具类
 
-// ----------
-
-        String s="123";
-
-// 判断字符串不为空值
-        if(s!=null&&!s.isEmpty()){} // 原生写法
-        if(Check.notEmpty(s)){} // 使用工具类
-
-// 获取字符串最后一个字符
-        s.charAt(s.length()-1); // 原生写法
-        Indexer.last(s); // 使用工具类
-
-// ----------
-
-        List list=Arrays.asList(1,2,3);
-
-// 判断列表不为空
-        if(list!=null&&list.size()>0){} // 原生写法
-        if(Check.notEmpty(list)){} // 使用工具类
-
-// 获取列表首个元素
-        list.get(list.size()); // 原生写法
-        Indexer.first(list); // 使用工具类
+        List list = Arrays.asList(11, 22, 33);
+        // 判断列表不为空
+        System.out.println(list != null && list.size() > 0); // true, 原生写法
+        System.out.println(Check.notEmpty(list));            // true, 使用工具类
+        // 获取列表首个元素
+        list.get(0);         // 11, 原生写法
+        Indexer.first(list); // 11, 使用工具类
+        // 获取列表倒数第二个元素
+        list.get(list.size() - 2); // 22, 原生写法
+        Indexer.at(list, -2);      // 22, 使用工具类
+    }
+}
 ```
 
-## 最低支持的 Java 版本
+## 信息
+
+### 最低支持的 Java 版本
 
 JDK 8
 
-## 引入项目帮助
+### License
+
+MIT License
+
+### 构建工具
+
+Maven
+
+## 引入工具包帮助
 
 1. 使用 maven 引入
 
     1. `git clone` 项目到本地
+        ```sh
+        git clone https://github.com/Snowlt/vanilla-sugar.git
+        ```
 
     2. 安装到本地 maven 仓库
 
-       在终端里切换到项目源码所在目录，执行:
+       在终端里切换到项目源码所在目录，使用 maven 执行安装:
         ```sh
+        cd vanilla-sugar-toolkit
         mvn install -Dmaven.test.skip=true
         ```
     3. 引入依赖
@@ -95,7 +94,7 @@ JDK 8
             <dependency>
                 <groupId>xyz.udw</groupId>
                 <artifactId>vanilla-sugar-toolkit</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>1.1</version>
             </dependency>
         </dependencies>
         ```
@@ -103,7 +102,7 @@ JDK 8
 2. 拷贝
 
    如果只想单独使用某几个类，也可以直接将源文件复制到其他项目中使用。工具类只使用了 Java 原生
-   API，不需要处理第三方依赖问题。
+   API，不依赖第三方包问题。
 
 ## 起因
 
@@ -125,7 +124,3 @@ JDK 8
 3. 保持轻量
 
    引入的工具类尽量小巧，只补充： Java 中非常常用的功能、其他语言中常见而 Java（旧版本）未原生提供的功能。
-
-### License
-
-MIT License
