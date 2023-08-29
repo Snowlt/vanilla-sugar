@@ -85,6 +85,42 @@ class FuncUtilsTest {
         assertEquals(new HashSet<>(Arrays.asList(1, 2, null)), list);
     }
 
+    @Test
+    void collectHashMap() {
+        List<Data> examples = Collections.unmodifiableList(Arrays.asList(
+                new Data(0, "X"), new Data(1, null), new Data(2, "An"),
+                new Data(3, "X"), new Data(2, " is"),
+                new Data(1, "able"), new Data(2, "land")
+        ));
+        HashMap<Integer, String> map = new HashMap<>();
+        map.put(0, "X");
+        map.put(1, null);
+        map.put(2, "An");
+        map.put(3, "X");
+        assertEquals(map, examples.stream().parallel().collect(FuncUtils.collectHashMap(Data::index, Data::value,
+                (a, b) -> a)));
+        map.clear();
+        map.put(0, "X");
+        map.put(1, "able");
+        map.put(2, "land");
+        map.put(3, "X");
+        assertEquals(map, examples.stream().parallel().collect(FuncUtils.collectHashMap(Data::index, Data::value,
+                (a, b) -> b)));
+        map.clear();
+        map.put(0, "X");
+        map.put(1, "nullable");
+        map.put(2, "An island");
+        map.put(3, "X");
+        assertEquals(map, examples.stream().parallel().collect(FuncUtils.collectHashMap(Data::index, Data::value,
+                (a, b) -> a + b)));
+        List<Data> examples2 = Collections.unmodifiableList(Arrays.asList(
+                new Data(1, "1"), new Data(1, "2"), new Data(1, "3"),
+                new Data(1, "4"), new Data(1, "5"), new Data(1, "6")
+        ));
+        assertEquals(Collections.singletonMap(1, "123456"), examples2.stream().parallel().collect(
+                FuncUtils.collectHashMap(Data::index, Data::value, String::concat)));
+    }
+
     public static class IterableWrapper<T> implements Iterable<T> {
         private final List<T> content;
 
@@ -96,6 +132,24 @@ class FuncUtilsTest {
         @Override
         public Iterator<T> iterator() {
             return content.iterator();
+        }
+    }
+
+    public static class Data {
+        private final Integer index;
+        private final String value;
+
+        public Data(Integer index, String value) {
+            this.index = index;
+            this.value = value;
+        }
+
+        public Integer index() {
+            return index;
+        }
+
+        public String value() {
+            return value;
         }
     }
 }
