@@ -31,6 +31,10 @@ class ConvertTest {
         assertNull(Convert.toLong(nothing, null));
         assertNull(Convert.toFloat(nothing, null));
         assertNull(Convert.toDouble(nothing, null));
+    }
+
+    @Test
+    void toNumberFromString() {
         String example = "123.321";
         assertEquals((byte) 123, Convert.toByte(example, (byte) -1));
         assertEquals((short) 123, Convert.toShort(example, (short) -1));
@@ -107,10 +111,6 @@ class ConvertTest {
         assertArrayEquals(new double[]{1.1D, 2.2D, 3.3D}, Convert.toPrimitiveArray(new Double[]{1.1, 2.2, 3.3}));
         assertArrayEquals(new char[]{'A', 'B', 'C'}, Convert.toPrimitiveArray(new Character[]{'A', 'B', 'C'}));
         assertArrayEquals(new boolean[]{true, true, false, false}, Convert.toPrimitiveArray(new Boolean[]{true, true, false, false}));
-    }
-
-    public enum TestEnum {
-        ZERO, ONE
     }
 
 }
