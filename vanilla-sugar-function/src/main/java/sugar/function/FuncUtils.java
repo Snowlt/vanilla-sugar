@@ -3,6 +3,7 @@ package sugar.function;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -172,10 +173,41 @@ public class FuncUtils {
     public static <T, K, V> Collector<T, ?, HashMap<K, V>> collectHashMap(Function<T, K> keyMapper,
                                                                           Function<T, V> valueMapper,
                                                                           BinaryOperator<V> mergeFunction) {
+        return collectMap(HashMap::new, keyMapper, valueMapper, mergeFunction);
+    }
+
+    /**
+     * 返回一个将元素累加到 {@link EnumMap} 的 {@link Collector}，流中的元素将分别使用指定的函数来映射为 Map 的 Key 和 Value 。
+     * <p>如果在添加映射元素时遇到了重复的 Key，则使用参数 {@code mergeFunction} 提供的函数来合并结果。</p>
+     *
+     * <p>类似 {@link java.util.stream.Collectors#toMap(Function, Function, BinaryOperator)}，但不同之处在于这个方法可以处理
+     * Value 中的 {@code null} 值（EnumMap 的 Key 不能为 null 但 Value 可以为 null）。</p>
+     *
+     * @param <T>           流中的元素类型
+     * @param <K>           Map 中 Key 的类型
+     * @param <V>           Map 中 Value 的类型
+     * @param keyMapper     将元素转为 Map 中 Key 的映射函数
+     * @param valueMapper   将元素转为 Map 中 Value 的映射函数
+     * @param mergeFunction 存入 Map 的 Key 冲突时的 Value 合并方法
+     * @return 生成 HashMap 的 Collector
+     * @throws NullPointerException 如果任意参数为空
+     */
+    public static <T, K extends Enum<K>, V>
+    Collector<T, ?, EnumMap<K, V>> collectEnumMap(Class<K> keyClass,
+                                                  Function<T, K> keyMapper,
+                                                  Function<T, V> valueMapper,
+                                                  BinaryOperator<V> mergeFunction) {
+        Objects.requireNonNull(keyClass);
+        return collectMap(() -> new EnumMap<>(keyClass), keyMapper, valueMapper, mergeFunction);
+    }
+
+    static <T, K, V, M extends Map<K, V>> Collector<T, ?, M> collectMap(Supplier<M> supplier, Function<T, K> keyMapper,
+                                                                        Function<T, V> valueMapper,
+                                                                        BinaryOperator<V> mergeFunction) {
         Objects.requireNonNull(keyMapper);
         Objects.requireNonNull(valueMapper);
         Objects.requireNonNull(mergeFunction);
-        return Collector.of(HashMap::new,
+        return Collector.of(supplier,
                 (map, t) -> {
                     K key = keyMapper.apply(t);
                     V newValue = valueMapper.apply(t);

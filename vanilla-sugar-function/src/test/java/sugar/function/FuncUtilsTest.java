@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -121,6 +122,25 @@ class FuncUtilsTest {
                 FuncUtils.collectHashMap(Data::index, Data::value, String::concat)));
     }
 
+    @Test
+    void toEnumMap() {
+        Class<TestEnum> c = TestEnum.class;
+        EnumMap<TestEnum, String> example = new EnumMap<>(c);
+        example.put(TestEnum.ZERO, TestEnum.ZERO.name());
+        example.put(TestEnum.ONE, TestEnum.ONE.name());
+        example.put(TestEnum.TWO, TestEnum.TWO.name());
+        assertEquals(example, Arrays.stream(TestEnum.values()).collect(FuncUtils.collectEnumMap(c,
+                Function.identity(), Enum::name, (a, b) -> a)));
+        example.remove(TestEnum.TWO);
+        assertEquals(example, Arrays.stream(TestEnum.values()).collect(FuncUtils.collectEnumMap(c,
+                e -> e == TestEnum.TWO ? TestEnum.ZERO : e, e -> e == TestEnum.TWO ? null : e.name(),
+                (a, b) -> a)));
+        example.put(TestEnum.ZERO, null);
+        assertEquals(example, Arrays.stream(TestEnum.values()).collect(FuncUtils.collectEnumMap(c,
+                e -> e == TestEnum.TWO ? TestEnum.ZERO : e, e -> e == TestEnum.TWO ? null : e.name(),
+                (a, b) -> b)));
+    }
+
     public static class IterableWrapper<T> implements Iterable<T> {
         private final List<T> content;
 
@@ -151,5 +171,9 @@ class FuncUtilsTest {
         public String value() {
             return value;
         }
+    }
+
+    public enum TestEnum {
+        ZERO, ONE, TWO
     }
 }
