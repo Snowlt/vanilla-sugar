@@ -10,7 +10,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * 提供 {@link Stream} 对象的辅助方法，且入参是 null-safe
+ * 提供 {@link Stream} 对象的辅助方法
+ * <p>无特殊注明外，大部分方法的参数都可接受 null</p>
  *
  * @author SnowLT
  */
@@ -66,7 +67,7 @@ public class FuncUtils {
     }
 
     /**
-     * 将多个集合对象转换成 {@link Stream} 并拼接，流中不包含 null 对象
+     * 将多个集合对象转换成 {@link Stream} 并拼接，并将 null 从流中过滤掉（{@code stream.filter(Objects::nonNull)}）
      *
      * @param <T>         元素的类型
      * @param collections 多个集合（可包含 null）
@@ -79,7 +80,7 @@ public class FuncUtils {
     }
 
     /**
-     * 将可迭代对象转换成 {@link Stream}，流中不包含 null 对象
+     * 将可迭代对象转换成 {@link Stream}，并将 null 从流中过滤掉（{@code stream.filter(Objects::nonNull)}）
      *
      * @param <T>      元素的类型
      * @param iterable 可迭代对象（可为 null）

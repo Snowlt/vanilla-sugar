@@ -8,8 +8,8 @@ import java.util.function.*;
  *
  * @author SnowLT
  */
-public class FunctionBuilder {
-    private FunctionBuilder() {
+public class FuncBuilder {
+    private FuncBuilder() {
     }
 
     /* 常用函数 */
@@ -124,7 +124,7 @@ public class FunctionBuilder {
      * 可配合 {@link java.util.List#forEach(Consumer)} 等方法使用，进行计数循环。<i>类似于 Kotlin 的 forEachIndexed</i></p>
      * <pre>例如: {@code
      *  List<String> list = Arrays.asList("A", "B", "C");
-     *  list.forEach(FunctionBuilder.indexConsumer((val, i) ->
+     *  list.forEach(FuncBuilder.indexConsumer((val, i) ->
      *      System.out.println("Item " + i + ": " + val)));
      * }</pre>
      * <pre>输出结果为：

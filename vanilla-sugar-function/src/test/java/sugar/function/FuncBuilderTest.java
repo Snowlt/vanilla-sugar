@@ -13,18 +13,18 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-class FunctionBuilderTest {
+class FuncBuilderTest {
 
     @Test
     void former() {
-        BinaryOperator<String> former = FunctionBuilder.former();
+        BinaryOperator<String> former = FuncBuilder.former();
         Assertions.assertEquals("1", former.apply("1", "2"));
         Assertions.assertNotEquals("2", former.apply("1", "2"));
     }
 
     @Test
     void latter() {
-        BinaryOperator<String> former = FunctionBuilder.latter();
+        BinaryOperator<String> former = FuncBuilder.latter();
         Assertions.assertEquals("2", former.apply("1", "2"));
         Assertions.assertNotEquals("1", former.apply("1", "2"));
     }
@@ -33,9 +33,9 @@ class FunctionBuilderTest {
     void not() {
         Predicate<?> truePredicate = t -> true;
         Predicate<?> falsePredicate = t -> false;
-        Assertions.assertTrue(FunctionBuilder.not(falsePredicate).test(null));
-        Assertions.assertFalse(FunctionBuilder.not(truePredicate).test(null));
-        Predicate<List<?>> notEmptyPredicate = FunctionBuilder.not(List::isEmpty);
+        Assertions.assertTrue(FuncBuilder.not(falsePredicate).test(null));
+        Assertions.assertFalse(FuncBuilder.not(truePredicate).test(null));
+        Predicate<List<?>> notEmptyPredicate = FuncBuilder.not(List::isEmpty);
         Assertions.assertFalse(notEmptyPredicate.test(Collections.emptyList()));
         Assertions.assertTrue(notEmptyPredicate.test(Collections.singletonList("")));
     }
@@ -51,14 +51,14 @@ class FunctionBuilderTest {
     void nonExSupplier() {
         String defaultValue = "return";
         Assertions.assertThrowsExactly(InnerException.class, () -> exSupplier.get());
-        Assertions.assertNull(FunctionBuilder.nonEx(exSupplier).get());
-        Assertions.assertEquals(defaultValue, FunctionBuilder.nonEx(exSupplier, defaultValue).get());
+        Assertions.assertNull(FuncBuilder.nonEx(exSupplier).get());
+        Assertions.assertEquals(defaultValue, FuncBuilder.nonEx(exSupplier, defaultValue).get());
         List<String> list = Arrays.asList("0", "1", "2");
         String defalutString = "-1";
-        Assertions.assertEquals("1", FunctionBuilder.nonEx(() -> list.get(1)).get());
+        Assertions.assertEquals("1", FuncBuilder.nonEx(() -> list.get(1)).get());
         Supplier<String> supplierWithException = () -> list.get(4);
-        Assertions.assertEquals(defalutString, FunctionBuilder.nonEx(supplierWithException, defalutString).get());
-        Assertions.assertNull(FunctionBuilder.nonEx(supplierWithException).get());
+        Assertions.assertEquals(defalutString, FuncBuilder.nonEx(supplierWithException, defalutString).get());
+        Assertions.assertNull(FuncBuilder.nonEx(supplierWithException).get());
         Assertions.assertThrows(IndexOutOfBoundsException.class, supplierWithException::get);
     }
 
@@ -67,14 +67,14 @@ class FunctionBuilderTest {
         String param = "in";
         String defaultValue = "return";
         Assertions.assertThrowsExactly(InnerException.class, () -> exFunction.apply(param));
-        Assertions.assertNull(FunctionBuilder.nonEx(exFunction).apply(param));
-        Assertions.assertEquals(defaultValue, FunctionBuilder.nonEx(exFunction, defaultValue).apply(param));
+        Assertions.assertNull(FuncBuilder.nonEx(exFunction).apply(param));
+        Assertions.assertEquals(defaultValue, FuncBuilder.nonEx(exFunction, defaultValue).apply(param));
         List<String> list = Arrays.asList("0", "1", "2");
         String defalutString = "-1";
         Function<Integer, String> funcWithException = list::get;
-        Assertions.assertEquals("1", FunctionBuilder.nonEx(funcWithException).apply(1));
-        Assertions.assertEquals(defalutString, FunctionBuilder.nonEx(funcWithException, defalutString).apply(4));
-        Assertions.assertNull(FunctionBuilder.nonEx(funcWithException).apply(4));
+        Assertions.assertEquals("1", FuncBuilder.nonEx(funcWithException).apply(1));
+        Assertions.assertEquals(defalutString, FuncBuilder.nonEx(funcWithException, defalutString).apply(4));
+        Assertions.assertNull(FuncBuilder.nonEx(funcWithException).apply(4));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> funcWithException.apply(4));
     }
 
@@ -84,16 +84,16 @@ class FunctionBuilderTest {
             throw new IOException();
         };
         Assertions.assertThrowsExactly(IOException.class, callable::call);
-        String expected = "return";
-        Assertions.assertNull(FunctionBuilder.toSupplier(callable, null).get());
-        Assertions.assertEquals(expected, FunctionBuilder.toSupplier(callable, expected).get());
-        Assertions.assertEquals(expected, FunctionBuilder.toSupplier(() -> expected, null).get());
+        final String expected = "return";
+        Assertions.assertNull(FuncBuilder.toSupplier(callable, null).get());
+        Assertions.assertEquals(expected, FuncBuilder.toSupplier(callable, expected).get());
+        Assertions.assertEquals(expected, FuncBuilder.toSupplier(() -> expected, null).get());
     }
 
     @Test
     void indexConsumer() {
-        Arrays.asList(0, 1, 2, 3).forEach(FunctionBuilder.withIndex(Assertions::assertEquals));
-        Arrays.asList("0123456789".split("")).forEach(FunctionBuilder.withIndex((s, i) ->
+        Arrays.asList(0, 1, 2, 3).forEach(FuncBuilder.withIndex(Assertions::assertEquals));
+        Arrays.asList("0123456789".split("")).forEach(FuncBuilder.withIndex((s, i) ->
                 Assertions.assertEquals(Integer.parseInt(s), i)));
     }
 
