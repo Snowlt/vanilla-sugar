@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -88,6 +89,17 @@ class FuncBuilderTest {
         Assertions.assertNull(FuncBuilder.toSupplier(callable, null).get());
         Assertions.assertEquals(expected, FuncBuilder.toSupplier(callable, expected).get());
         Assertions.assertEquals(expected, FuncBuilder.toSupplier(() -> expected, null).get());
+    }
+
+    @Test
+    void toSupplierForRunnable() {
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        final String expected = "return";
+        Assertions.assertFalse(atomicBoolean.get());
+        Assertions.assertEquals(expected, FuncBuilder.toSupplier(()-> atomicBoolean.set(true), expected).get());
+        Assertions.assertTrue(atomicBoolean.get());
+        Assertions.assertEquals(1, FuncBuilder.toSupplier(()-> atomicBoolean.set(false), 1).get());
+        Assertions.assertFalse(atomicBoolean.get());
     }
 
     @Test
