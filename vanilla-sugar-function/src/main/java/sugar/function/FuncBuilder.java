@@ -41,7 +41,7 @@ public class FuncBuilder {
      * @param <T> 泛型
      * @param old 原始 Predicate
      * @return 反转后的 Predicate
-     * @throws IllegalArgumentException 如果参数为空
+     * @throws IllegalArgumentException 如果参数 old 为空
      */
     public static <T> Predicate<T> not(Predicate<T> old) {
         if (old == null) throw new IllegalArgumentException();
@@ -51,7 +51,7 @@ public class FuncBuilder {
     /* 可处理异常的函数 */
 
     /**
-     * 将 {@link Supplier} 包装为抛出异常时返回 null 的 Supplier
+     * 将 {@link Supplier} 包装为抛出异常 {@link Exception} 时返回 null 的 Supplier
      *
      * @param <T>                   泛型
      * @param supplierWithException 可能抛出异常的 Supplier
@@ -63,7 +63,7 @@ public class FuncBuilder {
     }
 
     /**
-     * 将 {@link Supplier} 包装为抛出异常时返回默认值的 Supplier
+     * 将 {@link Supplier} 包装为抛出异常 {@link Exception} 时返回默认值的 Supplier
      *
      * @param <T>                   泛型
      * @param supplierWithException 可能抛出异常的 Supplier
@@ -83,7 +83,7 @@ public class FuncBuilder {
     }
 
     /**
-     * 将 {@link Function} 包装为抛出异常时返回 null 的 Function
+     * 将 {@link Function} 包装为抛出异常 {@link Exception} 时返回 null 的 Function
      *
      * @param <T>               泛型(参数类型)
      * @param <R>               泛型(返回值)
@@ -96,7 +96,7 @@ public class FuncBuilder {
     }
 
     /**
-     * 将 {@link Function} 包装为抛出异常时返回默认值的 Function
+     * 将 {@link Function} 包装为抛出异常 {@link Exception} 时返回默认值的 Function
      *
      * @param <T>               泛型(参数类型)
      * @param <R>               泛型(返回值)
@@ -124,7 +124,7 @@ public class FuncBuilder {
      * 可配合 {@link java.util.List#forEach(Consumer)} 等方法使用，进行计数循环。<i>类似于 Kotlin 的 forEachIndexed</i></p>
      * <pre>例如: {@code
      *  List<String> list = Arrays.asList("A", "B", "C");
-     *  list.forEach(FuncBuilder.indexConsumer((val, i) ->
+     *  list.forEach(FuncBuilder.withIndex((val, i) ->
      *      System.out.println("Item " + i + ": " + val)));
      * }</pre>
      * <pre>输出结果为：
@@ -151,7 +151,7 @@ public class FuncBuilder {
     }
 
     /**
-     * 将 {@link Callable} 包装为抛出异常时返回默认值的 Supplier
+     * 将 {@link Callable} 包装为抛出异常 {@link Exception} 时返回默认值的 Supplier
      *
      * @param <T>          泛型(参数类型)
      * @param callable     Callable 对象
