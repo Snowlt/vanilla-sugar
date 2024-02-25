@@ -35,7 +35,7 @@ public class FuncBuilder {
     }
 
     /**
-     * 返回一个反转原始 {@link Predicate} 的结果
+     * 返回一个反转原始 {@link Predicate} 结果的 {@link Predicate}
      * <pre> {@code not(old).test(t)} 等效于: {@code !old.test(t)}</pre>
      *
      * @param <T> 泛型
