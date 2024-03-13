@@ -23,7 +23,7 @@ public class RandUtils {
      * @throws IllegalArgumentException 如果 list 长度为 0
      */
     public static <T> T choice(List<T> list) {
-        return list.get(randInt(list.size()));
+        return list.get(nextInt(list.size()));
     }
 
     /**
@@ -36,12 +36,13 @@ public class RandUtils {
      * @throws IllegalArgumentException 如果 array 长度为 0
      */
     public static <T> T choice(T[] array) {
-        return array[randInt(array.length)];
+        return array[nextInt(array.length)];
     }
 
     /**
      * 从列表中随机选取 k 个可重复的元素，并将选取的元素组装为新列表返回
      * <p>这个方法的返回结果与抽样结果有区别，如需随机抽样请使用: {@link #sample(List, int)}。
+     *
      * @param <T>  元素类型
      * @param list 列表
      * @param k    选取数量
@@ -54,7 +55,7 @@ public class RandUtils {
         int n = list.size();
         ArrayList<T> nl = new ArrayList<>(k);
         for (int i = 0; i < k; i++) {
-            nl.add(list.get(randInt(n)));
+            nl.add(list.get(nextInt(n)));
         }
         return nl;
     }
@@ -66,24 +67,22 @@ public class RandUtils {
      * @param <T>  元素类型
      * @param list 列表
      * @param k    选取数量
+     * @return 按顺序随机抽样出的 k 个元素
      * @throws NullPointerException     如果 list 为 null
      * @throws IllegalArgumentException 如果 list 长度为 0 ，k > list 长度或 k < 0
-     * @return 按顺序随机抽样出的 k 个元素
      */
     @SuppressWarnings("unchecked")
     public static <T> List<T> sample(List<T> list, int k) {
-        if (k < 0 || k > list.size()) {
-            throw new IllegalArgumentException();
-        } else if (k == 1) {
-            return Collections.singletonList(choice(list));
-        }
+        if (k < 0 || k > list.size()) throw new IllegalArgumentException();
+        else if (k == 1) return Collections.singletonList(choice(list));
         // 算法从 Python 库中的 random.sample 移植 https://github.com/python/cpython/blob/3.12/Lib/random.py#L359
+        // 备注：思路类似 shuffle 方法中打乱顺序，交换位置的同时进行选择，只需重复 k 次即可
         ArrayList<T> nl = new ArrayList<>(k);
         Object[] pool = list.toArray();
         int n = pool.length;
         for (int i = 0; i < k; i++) {
             // 0 到 n-i 之间是还未选取的
-            int j = randInt(n - i);
+            int j = nextInt(n - i);
             nl.add((T) pool[j]);
             // 将还未选取的元素移到前面的空位
             pool[j] = pool[n - 1 - i];
@@ -132,7 +131,7 @@ public class RandUtils {
     public static <T> void shuffleSelf(List<T> list) {
         for (int i = list.size(); i > 1; i--) {
             // 从 0 到 i-1 中随机选择一个与 i 交换位置
-            int j = randInt(i);
+            int j = nextInt(i);
             list.set(j, list.set(i - 1, list.get(j)));
         }
     }
@@ -147,57 +146,148 @@ public class RandUtils {
     public static <T> void shuffleSelf(T[] array) {
         for (int i = array.length; i > 1; i--) {
             // 从 0 到 i-1 中随机选择一个与 i 交换位置
-            int j = randInt(i);
+            int j = nextInt(i);
             T temp = array[j];
             array[j] = array[i - 1];
             array[i - 1] = temp;
         }
     }
 
-    public static int randInt(int max) {
+    /**
+     * 返回一个 int 随机数 x， 0 <= x < max
+     *
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= 0
+     * @see #randIntBetween(int, int)
+     */
+    public static int nextInt(int max) {
         return ThreadLocalRandom.current().nextInt(max);
     }
 
-    public static int randInt(int min, int max) {
+    /**
+     * 返回一个 int 随机数 x， min <= x < max
+     *
+     * @param min 最小数（包含）
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= min
+     * @see #randIntBetween(int, int)
+     */
+    public static int nextInt(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max);
     }
 
-    public static int randIntInclusive(int maxInclusive) {
-        return randIntInclusive(0, maxInclusive);
-    }
-
-    public static int randIntInclusive(int min, int maxInclusive) {
-        return (int) ThreadLocalRandom.current().nextLong(min, maxInclusive + 1L);
-    }
-
-    public static long randLong(long max) {
+    /**
+     * 返回一个 long 随机数 x， 0 <= x < max
+     *
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= 0
+     */
+    public static long nextLong(long max) {
         return ThreadLocalRandom.current().nextLong(max);
     }
 
-    public static long randLong(long min, long max) {
+    /**
+     * 返回一个 long 随机数 x， min <= x < max
+     *
+     * @param min 最小数（包含）
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= min
+     */
+    public static long nextLong(long min, long max) {
         return ThreadLocalRandom.current().nextLong(min, max);
     }
 
-    public static double randDouble() {
+    /**
+     * 返回一个 float 随机数 x， 0.0F <= x < max
+     *
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= 0.0
+     */
+    public static float nextFloat(float max) {
+        return nextFloat(0, max);
+    }
+
+    /**
+     * 返回一个 float 随机数 x， min <= x < max
+     *
+     * @param min 最小数（包含）
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= min
+     */
+    public static float nextFloat(float min, float max) {
+        if (min > max) throw new IllegalArgumentException();
+        return min + ((max - min) * ThreadLocalRandom.current().nextFloat());
+    }
+
+    /**
+     * 返回一个 double 随机数 x， 0.0 <= x < 1.0
+     *
+     * @return 随机数
+     */
+    public static double nextDouble() {
         return ThreadLocalRandom.current().nextDouble();
     }
 
-    public static double randDouble(double min, double max) {
+    /**
+     * 返回一个 double 随机数 x， 0.0 <= x < max
+     *
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= 0.0
+     */
+    public static double nextDouble(double max) {
+        return ThreadLocalRandom.current().nextDouble(max);
+    }
+
+    /**
+     * 返回一个 double 随机数 x， min <= x < max
+     *
+     * @param min 最小数（包含）
+     * @param max 最大数（不包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 max <= min
+     */
+    public static double nextDouble(double min, double max) {
         return ThreadLocalRandom.current().nextDouble(min, max);
     }
 
-    public static boolean randBool() {
+    /**
+     * 返回一个随机 boolean 值
+     *
+     * @return true 或 false
+     */
+    public static boolean nextBool() {
         return ThreadLocalRandom.current().nextBoolean();
     }
 
     /**
-     * 生成 n 个随机字节
+     * 返回一个 int 随机数 x， minInclusive <= x <= max
+     *
+     * @param minInclusive 最小数（包含）
+     * @param maxInclusive 最大数（包含）
+     * @return 随机数
+     * @throws IllegalArgumentException 如果 maxInclusive < minInclusive
+     */
+    public static int randIntBetween(int minInclusive, int maxInclusive) {
+        return (int) ThreadLocalRandom.current().nextLong(minInclusive, maxInclusive + 1L);
+    }
+
+    /**
+     * 生成由 n 个随机字节组成的数组
      * <p>如果需要用于生成安全凭据、密码等请参考: {@link java.security.SecureRandom}，避免使用此方法。
      *
      * @param n 生成的字节数量
      * @return 随机生成的字节数组
+     * @throws IllegalArgumentException 如果 n < 0
      */
-    public static byte[] nextBytes(int n) {
+    public static byte[] randBytes(int n) {
+        if (n < 0) throw new IllegalArgumentException();
         byte[] result = new byte[n];
         ThreadLocalRandom.current().nextBytes(result);
         return result;
