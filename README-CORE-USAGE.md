@@ -136,8 +136,6 @@ Check.equalsAsIterable(new int[]{1, 2, 3}, new ArrayDeque<>(Arrays.asList(1, 2, 
 Check.equalsAsSet(Arrays.asList(1, 2), Arrays.asList(2, 1)); // => true
 ```
 
-
-
 ## 类型转换 - `Convert` 类
 
 提供转化为常用数据类型的方法。
@@ -277,8 +275,6 @@ System.out.println(Arrays.toString(boxed));     // [1.1, 3.3, 5.5, 7.7]
 System.out.println(Arrays.toString(primitive)); // [1.1, 3.3, 5.5, 7.7]
 ```
 
- 
-
 ## 索引操作 - `Indexer` 类
 
 为可索引的对象（例如列表、字符串等）提供增强的查找功能。
@@ -314,8 +310,6 @@ Indexer.firstOrDefault("", 'N');             // => 'N'
 
 *备注：在索引 `Iterable` 可迭代对象时(`List` 除外)，会使用 `Iterable.iterator()`
 执行迭代直到找到目标位置。因此实现类需要遵守每次调用 `iterator()` 都返回新迭代器的约定，否则会发生未知的问题。*
-
-
 
 ## 切片操作 - `Slice` 类
 
@@ -371,8 +365,6 @@ b.toArray(); // 新的对象
 | `Slice.slice(lst, 0, 3, null)`    | `lst[0:3]`  | `[1, 2, 3]`       |
 | `Slice.slice(lst, null, null, 2)` | `lst[::2]`  | `[1, 3, 5]`       |
 | `Slice.slice(lst, 0, 3, null)`    | `lst[::-1]` | `[5, 4, 3, 2, 1]` |
-
- 
 
 ## 枚举辅助 - `EnumUtils` 类
 
@@ -436,8 +428,6 @@ public class Demo {
 }
 ```
 
- 
-
 ## 元组 - `Tuple` 类
 
 #### 简述
@@ -490,3 +480,72 @@ public class Demo {
     }
 }
 ```
+
+## 随机辅助 - `RandUtils` 类
+
+提供常用随机操作的方法。相当于提供静态方法的增强 `Random` 类。
+
+#### 常用方法
+
+- `choice`: 从给定的列表中随机选择一个元素。
+- `sample`: 从给定的列表中随机抽样 k 个元素。
+- `shuffle`: 将列表洗牌（随机打乱元素顺序）。
+- `nextInt`: 返回一个指定范围内的 int 随机数。
+- `nextDouble`: 返回一个指定范围内的 double 随机数。
+
+```java
+List<Integer> lst = List.of(1, 2, 3, 4, 5);
+// 随机抽取
+RandUtils.choice(lst);    // => 1 (随机结果)
+RandUtils.choice(lst);    // => 3 (随机结果)
+RandUtils.sample(lst, 3); // => [5, 1, 2] (抽样三个元素)
+// 洗牌
+RandUtils.shuffle(lst); // => [3, 2, 4, 1, 5]
+// 生成随机数
+RandUtils.nextInt(5, 10);       // => 8
+RandUtils.nextDouble(1.0, 2.0); // => 1.141
+```
+
+## 日期时间辅助 - `DateTimeUtils` 类
+
+主要针对 `LocalDateTime` / `ZonedDateTime` / `Date` 对象和时间戳补充了一些方法。
+
+### 常用方法
+
+#### 时间戳相关
+
+- `unixTimestamp`: 返回当前时间的 Unix 时间戳（以秒为单位）
+- `milliTimestamp`: 返回当前时间的时间戳（以毫秒为单位）
+- `unixTimestampToDateTime`: 将 Unix 时间戳转换为 LocalDateTime 对象（UTC+0）
+
+#### 解析字符串/格式化日期时间
+
+- `parseToDate`: 将日期时间字符串解析为 Date 对象
+- `parseToLocalDateTime`: 将日期时间字符串解析为 LocalDateTime 对象
+- `parseToZonedDateTime`: 将日期时间字符串解析为 ZonedDateTime 对象
+- `format(Date, String)`: 将 Date 对象格式化为字符串
+- `format(Temporal, String)`: 将日期/时间对象格式化为字符串
+
+为了简化异常处理，所有 `parseTo` 开头的方法、`format` 方法都有以下特性：
+
+1. 第一个参数传入 `null` 时方法都会返回 `null`
+2. 如果解析格式失败会统一抛出 `DateTimeException` 异常
+3. 线程安全\*
+
+备注\*： 处理 `Date` 的 `SimpleDateFormat` 是非线程安全的，方法中没有在线程间复用对象
+
+#### 类型转换
+
+- `toDate(ZonedDateTime)`: 将 ZonedDateTime 对象转换为 Date 对象
+- `toDate(LocalDateTime, ZoneId)`: 将 LocalDateTime 转换为 Date 对象
+- `atSystemZone(LocalDateTime)`: 将 LocalDateTime 对象附加上系统默认的时区转换为 ZonedDateTime
+- `atSystemZone(Date)`: 将 Date 对象转换为使用系统默认时区的 ZonedDateTime
+- `atZone(Date, ZoneId)`: 将 Date 对象转换为 ZonedDateTime
+
+为了简化异常处理，这些方法在传入 `null` 时都会直接返回 `null` 而不抛出异常。
+
+### 使用备注
+
+1. Java 8 增加的大量 `java.time` 日期/时间 API 提升了易用性，多数方法已内置无需借助工具类。`DateTimeUtils` 主要是对转换做了增补。
+2. 由于 `Date` / `LocalDateTime` 并不包含时区信息，在转化为 `ZonedDateTime`
+   时需要指定相应的时区结果才有意义。相当于 `LocalDateTime + ZoneId => ZonedDateTime`。
