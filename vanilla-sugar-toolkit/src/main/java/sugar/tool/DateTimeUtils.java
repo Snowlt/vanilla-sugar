@@ -66,10 +66,11 @@ public class DateTimeUtils {
 
     /**
      * 将日期时间字符串解析为 {@link Date} 对象
+     * <p>如果传入的 date 为 null，方法会直接返回 null 而不抛出异常。
      *
      * @param date    日期时间字符串
      * @param pattern 格式
-     * @return {@link Date} 对象
+     * @return {@link Date} 对象或 null
      * @throws DateTimeException 如果解析日期失败或格式不正确则抛出
      */
     public static Date parseToDate(String date, String pattern) {
@@ -84,10 +85,11 @@ public class DateTimeUtils {
 
     /**
      * 将日期时间字符串解析为 {@link LocalDateTime} 对象
+     * <p>如果传入的 dateTime 为 null，方法会直接返回 null 而不抛出异常。
      *
      * @param dateTime 日期时间字符串
      * @param pattern  格式
-     * @return {@link LocalDateTime} 对象
+     * @return {@link LocalDateTime} 对象或 null
      * @throws DateTimeException 如果解析日期失败或格式不正确则抛出
      */
     public static LocalDateTime parseToLocalDateTime(String dateTime, String pattern) {
@@ -102,10 +104,11 @@ public class DateTimeUtils {
 
     /**
      * 将日期时间字符串解析为 {@link ZonedDateTime} 对象
+     * <p>如果传入的 dateTime 为 null，方法会直接返回 null 而不抛出异常。
      *
      * @param dateTime 日期时间字符串
      * @param pattern  格式
-     * @return {@link ZonedDateTime} 对象
+     * @return {@link ZonedDateTime} 对象或 null
      * @throws DateTimeException 如果解析日期失败或格式不正确则抛出
      */
     public static ZonedDateTime parseToZonedDateTime(String dateTime, String pattern) {
@@ -120,10 +123,11 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link Date} 对象按指定的格式转换为字符串
+     * <p>如果传入的 date 为 null，方法会直接返回 null 而不抛出异常。
      *
      * @param date    日期时间字符串
      * @param pattern 格式
-     * @return 格式化后的字符串
+     * @return 格式化后的字符串或 null
      * @throws DateTimeException 如果格式不正确则抛出
      */
     public static String format(Date date, String pattern) {
@@ -138,10 +142,11 @@ public class DateTimeUtils {
 
     /**
      * 将日期/时间对象（例如: {@link LocalDateTime}, {@link ZonedDateTime}）按指定的格式转换为字符串
+     * <p>如果传入的 dateTime 为 null，方法会直接返回 null 而不抛出异常。
      *
      * @param dateTime 日期/时间对象 {@link Temporal}
      * @param pattern  格式
-     * @return 格式化后的字符串
+     * @return 格式化后的字符串或 null
      * @throws DateTimeException 如果格式不正确，或无法按给定的格式应用格式化对象则抛出
      */
     public static String format(Temporal dateTime, String pattern) {
@@ -158,6 +163,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link LocalDateTime} 对象附加上系统默认的时区转换为 {@link ZonedDateTime}
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param localDateTime {@link LocalDateTime} 对象
      * @return {@link ZonedDateTime} 对象
@@ -169,6 +175,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link LocalDateTime} 对象附加上 UTC 0 时区(UTC+0000)转换为 {@link ZonedDateTime}
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param localDateTime {@link LocalDateTime} 对象
      * @return {@link ZonedDateTime} 对象
@@ -180,6 +187,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link Date} 对象转换为使用系统默认时区的 {@link ZonedDateTime}
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param date {@link Date} 对象
      * @return {@link ZonedDateTime} 对象
@@ -190,6 +198,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link Date} 对象转换为使用 UTC 0 时区(UTC+0000)的 {@link ZonedDateTime}
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param date {@link Date} 对象
      * @return {@link ZonedDateTime} 对象
@@ -200,6 +209,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link Date} 对象转换为使用 zoneId 指定时区的 {@link ZonedDateTime}
+     * <p>如果任意参数为 null，方法也会返回 null。
      *
      * @param date   {@link Date} 对象
      * @param zoneId 指定转换后日期时间所在的时区
@@ -213,6 +223,7 @@ public class DateTimeUtils {
     /**
      * 将 {@link Date} 对象转换为 {@link LocalDateTime} 对象
      * <p>转换后的日期时间是在系统默认时区 {@link ZoneId#systemDefault()} 下对应的日期时间。
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param date {@link Date} 对象
      * @return 含相同日期时间部分的 {@link LocalDateTime} 对象
@@ -224,6 +235,7 @@ public class DateTimeUtils {
     /**
      * 将 {@link Date} 对象转换为 {@link LocalDateTime} 对象
      * <p>转换后的日期时间是在 zoneId 指定时区下的对应日期时间。
+     * <p>如果任意参数为 null，方法也会返回 null。
      *
      * @param date   {@link Date} 对象
      * @param zoneId 指定转换后日期时间所在的时区
@@ -236,6 +248,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link ZonedDateTime} 对象转换为 {@link Date} 对象
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param zonedDateTime {@link ZonedDateTime} 对象
      * @return {@link Date} 对象
@@ -248,6 +261,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link LocalDateTime} 转换为 {@link Date} 对象，localDateTime 是在系统默认时区下显示的时间
+     * <p>如果传入的参数为 null 方法也会返回 null。
      *
      * @param localDateTime {@link LocalDateTime} 对象
      * @return {@link Date} 对象
@@ -258,6 +272,7 @@ public class DateTimeUtils {
 
     /**
      * 将 {@link LocalDateTime} 转换为 {@link Date} 对象，localDateTime 是在 zoneId 指定的时区下显示的时间
+     * <p>如果任意参数为 null，方法也会返回 null。
      *
      * @param localDateTime {@link LocalDateTime} 对象
      * @param zoneId        指定 localDateTime 所属的时区
