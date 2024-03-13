@@ -14,8 +14,8 @@ Vanilla Sugar Toolkit 是一个轻量级的 Java 工具类包。
 例如:
 
 - `Check.notEmpty` 支持对数组、列表、字符串等多种对象判空
-- `Convert.toInt` 和 `Convert.toLong` 等方法支持根据对象的实际类型自动转为数字
 - `Check.isTrue` 提供了类似 JavaScript 中 `if (...)` 语法自动根据类型转为布尔值的效果
+- `Convert.toInt` 和 `Convert.toLong` 等方法支持根据对象的实际类型自动转为数字
 - `Indexer` 类的方法提供了类似 Python/C# 中索引器的功能，能获取基本类型数组、对象数组、列表等对象中的元素，支持负数索引
 - `Slice` 类提供了 Python 中的切片操作
 - ...
@@ -56,19 +56,24 @@ public class Example {
 }
 ```
 
+## 模块
+
+Vanilla Sugar Toolkit 按照用途拆分为了以下模块，可按需求单独引入。列表如下：
+
+| 模块             | 目录名                    | 描述                                         |
+|----------------|------------------------|--------------------------------------------|
+| toolkit（核心工具）  | vanilla-sugar-toolkit  | 核心工具类、扩展类包，提供最基础的功能扩展                      |
+| function（函数工具） | vanilla-sugar-function | 对 Stream 和 FunctionalInterface 函数式接口提供功能扩展 |
+
+模块的目录名同时也是 Maven 的 `artifactId`。
+
+每个模块为最小单元，除了使用 JUnit 进行单元测试，只使用了 JDK 内置 API 不依赖第三方其他库。
+
 ## 信息
 
-### 最低支持的 Java 版本
-
-JDK 8
-
-### License
-
-MIT License
-
-### 构建工具
-
-Maven
+- **最低支持的 Java 版本**: JDK 8
+- **License**: MIT License
+- **构建工具**: Maven
 
 ## 引入工具包帮助
 
@@ -81,20 +86,29 @@ Maven
 
     2. 安装到本地 maven 仓库
 
-       在终端里切换到项目源码所在目录，使用 maven 执行安装:
+       使用 maven 执行安装对于模块到本地仓库。以下是安装全部模块的示例命令（在终端里切换到项目源码所在目录）:
         ```sh
+        # 1 install vanilla-sugar-toolkit
         cd vanilla-sugar-toolkit
+        mvn install -Dmaven.test.skip=true
+        # 2 install vanilla-sugar-function
+        cd ../vanilla-sugar-function
         mvn install -Dmaven.test.skip=true
         ```
     3. 引入依赖
 
-       在其他项目的 `pom.xml` 文件中引入依赖即可
+       在其他项目的 `pom.xml` 文件中，按需要引入依赖即可
         ```xml
         <dependencies>
             <dependency>
                 <groupId>xyz.udw</groupId>
                 <artifactId>vanilla-sugar-toolkit</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.udw</groupId>
+                <artifactId>vanilla-sugar-function</artifactId>
+                <version>1.0</version>
             </dependency>
         </dependencies>
         ```
