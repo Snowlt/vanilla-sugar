@@ -44,6 +44,15 @@ class FuncUtilsTest {
     }
 
     @Test
+    void buildFromArray() {
+        Stream<Integer> stream = FuncUtils.stream(new Integer[]{1,2,null});
+        assert !stream.isParallel();
+        assertEquals(Arrays.asList(1, 2, null), stream.collect(Collectors.toList()));
+        assertFalse(FuncUtils.stream((String[]) null).findAny().isPresent());
+        assertFalse(FuncUtils.stream(new Long[0]).findAny().isPresent());
+    }
+
+    @Test
     void buildNonNullStream() {
         Stream<Integer> stream = FuncUtils.nonNullStream(Arrays.asList(1, null, 2));
         assert !stream.isParallel();

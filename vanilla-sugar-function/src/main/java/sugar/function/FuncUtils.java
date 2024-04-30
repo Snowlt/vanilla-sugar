@@ -56,6 +56,18 @@ public class FuncUtils {
     }
 
     /**
+     * 将数组对象转换成 {@link Stream}，如果对象为 null 将返回一个空流
+     *
+     * @param <T>   元素的类型
+     * @param array 数组（可为 null）
+     * @return Stream
+     */
+    public static <T> Stream<T> stream(T[] array) {
+        return array == null || array.length == 0 ? Stream.empty()
+                : Arrays.stream(array, 0, array.length);
+    }
+
+    /**
      * 将集合对象转换成 {@link Stream}，如果对象为 null 将返回一个空流
      *
      * @param <T>        元素的类型
