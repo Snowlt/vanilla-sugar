@@ -19,6 +19,7 @@
     <modules>
         <module>vanilla-sugar-toolkit</module>
         <module>vanilla-sugar-function</module>
+        <module>vanilla-sugar-ini</module>
     </modules>
 
     <dependencies>
