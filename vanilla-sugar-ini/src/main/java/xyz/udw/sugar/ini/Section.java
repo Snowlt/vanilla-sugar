@@ -438,7 +438,6 @@ public class Section implements Iterable<Map.Entry<String, String>> {
      * @throws AccessValueException if key not found
      */
     private int findKeyIndex(String key) {
-        if (!items.containsKey(key)) throwInvalidKey(key);
         for (int i = 0; i < nodes.size(); i++) {
             Node node = nodes.get(i);
             if (node.getKey().equals(key)) return i;
