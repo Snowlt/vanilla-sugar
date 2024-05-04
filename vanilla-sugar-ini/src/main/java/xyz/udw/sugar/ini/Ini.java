@@ -150,7 +150,19 @@ public class Ini implements Iterable<Ini.IniEntry> {
         return new ChainIniAccessor(this);
     }
 
-    // region Quick Access
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Ini that = (Ini) o;
+        return Objects.equals(sections, that.sections) && Objects.equals(defaultSection, that.defaultSection);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sections, defaultSection);
+    }
+// region Quick Access
 
     /**
      *获取此 INI 中指定项（键值对）中的值。

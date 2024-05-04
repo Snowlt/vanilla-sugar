@@ -210,6 +210,20 @@ public class Section implements Iterable<Map.Entry<String, String>> {
         return nodes.stream().map(Node::getKey).collect(Collectors.toList());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Section section = (Section) o;
+        return Objects.equals(danglingText, section.danglingText) && Objects.equals(topComments, section.topComments)
+                && Objects.equals(nodes, section.nodes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(danglingText, topComments, items);
+    }
+
     // region Comment Operation
 
     /**
@@ -506,6 +520,19 @@ public class Section implements Iterable<Map.Entry<String, String>> {
                 comments.forEach(s -> builder.append("# ").append(s).append('\n'));
             builder.deleteCharAt(builder.length() - 1);
             return builder.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Node)) return false;
+            Node node = (Node) o;
+            return Objects.equals(key, node.key) && Objects.equals(comments, node.comments);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, comments);
         }
     }
 
