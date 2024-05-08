@@ -1,4 +1,4 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
 import java.io.BufferedReader;
 import java.io.IOException;

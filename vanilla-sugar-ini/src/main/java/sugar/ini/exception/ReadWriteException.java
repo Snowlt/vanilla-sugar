@@ -1,4 +1,4 @@
-package xyz.udw.sugar.ini.exception;
+package sugar.ini.exception;
 
 public class ReadWriteException extends RuntimeException{
     public ReadWriteException(String message) {

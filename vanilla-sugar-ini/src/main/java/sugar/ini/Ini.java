@@ -1,6 +1,6 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
-import xyz.udw.sugar.ini.exception.AccessValueException;
+import sugar.ini.exception.AccessValueException;
 
 import java.util.*;
 

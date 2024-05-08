@@ -1,4 +1,4 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
 /**
  * {@link Section} 的链式访问器
