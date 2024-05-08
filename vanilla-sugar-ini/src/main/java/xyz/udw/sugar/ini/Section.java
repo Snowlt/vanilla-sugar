@@ -447,7 +447,7 @@ public class Section implements Iterable<Map.Entry<String, String>> {
     }
 
     /**
-     * Return an iterator stopped at specified key position.
+     * Return the node of specified key.
      *
      * @throws AccessValueException if key not found
      */
