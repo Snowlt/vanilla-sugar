@@ -1,4 +1,4 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
 import org.junit.jupiter.api.Test;
 
@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static xyz.udw.sugar.ini.Utils.loadAsString;
 
 class IniSerializerTest {
 
@@ -29,7 +28,7 @@ class IniSerializerTest {
                     .setAddSpaceBeforeComment(true);
             serializer.write(ini, writer);
             String result = trimTailNewLine(writer);
-            String expected = loadAsString("normal.ini");
+            String expected = Utils.loadAsString("normal.ini");
             assertEquals(expected, result);
         }
         try (StringWriter writer = new StringWriter()) {
@@ -39,7 +38,7 @@ class IniSerializerTest {
                     .setCommentPrefix("#");
             serializer.write(ini, writer);
             String result = trimTailNewLine(writer);
-            String expected = loadAsString("normal.ini")
+            String expected = Utils.loadAsString("normal.ini")
                     .replace("; ", "#")
                     .replace(" = ", "=");
             assertEquals(expected, result);
@@ -62,7 +61,7 @@ class IniSerializerTest {
                     .setAddSpaceBeforeComment(true);
             serializer.write(ini, writer);
             String result = trimTailNewLine(writer);
-            String expected = loadAsString("top-dangling.ini");
+            String expected = Utils.loadAsString("top-dangling.ini");
             assertEquals(expected, result);
         }
     }

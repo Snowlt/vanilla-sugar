@@ -1,13 +1,13 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
 import org.junit.jupiter.api.Test;
-import xyz.udw.sugar.ini.exception.AccessValueException;
+import sugar.ini.exception.AccessValueException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static xyz.udw.sugar.ini.Utils.asList;
+import static sugar.ini.Utils.asList;
 
 class IniTest {
 

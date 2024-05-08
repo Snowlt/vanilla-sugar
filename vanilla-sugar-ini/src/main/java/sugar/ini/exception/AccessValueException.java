@@ -1,4 +1,4 @@
-package xyz.udw.sugar.ini.exception;
+package sugar.ini.exception;
 
 public class AccessValueException extends RuntimeException{
     public AccessValueException(String message) {

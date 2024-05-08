@@ -1,9 +1,9 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static xyz.udw.sugar.ini.Utils.asList;
+import static sugar.ini.Utils.asList;
 
 class ChainIniAccessorTest {
 

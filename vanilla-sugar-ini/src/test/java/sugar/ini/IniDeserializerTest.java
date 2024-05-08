@@ -1,23 +1,22 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static xyz.udw.sugar.ini.Utils.asList;
-import static xyz.udw.sugar.ini.Utils.getInputStream;
 
 class IniDeserializerTest {
 
     @Test
     void readNormal() {
-        Ini ini = new IniDeserializer().read(getInputStream("normal.ini"), StandardCharsets.UTF_8);
+        Ini ini = new IniDeserializer().read(Utils.getInputStream("normal.ini"), StandardCharsets.UTF_8);
         assertNotNull(ini);
         assertTrue(ini.contains("Sec1"));
         assertTrue(ini.contains("Sec2"));
         assertEquals(0, ini.getUntitledSection().countKeyAndComments());
-        assertEquals(asList("Sec1", "Sec2"), ini.getSectionNames());
+        Assertions.assertEquals(Utils.asList("Sec1", "Sec2"), ini.getSectionNames());
         Section section1 = ini.get("Sec1");
         assertNotNull(section1);
         assertEquals("value1", section1.get("key1"));
@@ -31,9 +30,9 @@ class IniDeserializerTest {
 
     @Test
     void readAbnormal() {
-        Ini ini = new IniDeserializer().read(getInputStream("abnormal.ini"), StandardCharsets.UTF_8);
+        Ini ini = new IniDeserializer().read(Utils.getInputStream("abnormal.ini"), StandardCharsets.UTF_8);
         assertNotNull(ini);
-        assertEquals(asList("Sec1", "Sec2", "Sec3"), ini.getSectionNames());
+        Assertions.assertEquals(Utils.asList("Sec1", "Sec2", "Sec3"), ini.getSectionNames());
         // Untitled Section
         Section untitledSection = ini.getUntitledSection();
         assertNotNull(untitledSection);
@@ -50,10 +49,10 @@ class IniDeserializerTest {
         assertEquals("  Dangling Content In Sec1\n" +
                 "\n" +
                 "  Next dangling line", section1.getDanglingText());
-        assertEquals(asList("Comment1 before key1", "Comment2 before key1"), section1.getCommentsBefore("key1"));
+        Assertions.assertEquals(Utils.asList("Comment1 before key1", "Comment2 before key1"), section1.getCommentsBefore("key1"));
         assertEquals("value1", section1.get("key1"));
         assertEquals("value2\n    value2 next line", section1.get("key2"));
-        assertEquals(asList("Comment before key3"), section1.getCommentsBefore("key3"));
+        Assertions.assertEquals(Utils.asList("Comment before key3"), section1.getCommentsBefore("key3"));
         assertEquals("value3", section1.get("key3"));
         // Section 2(Empty)
         Section section2 = ini.get("Sec2");
@@ -74,28 +73,28 @@ class IniDeserializerTest {
         final String filename = "top-dangling.ini";
 
         Ini ini1 = new IniDeserializer().setDanglingTextOption(IniDeserializer.DanglingTextOptions.TO_COMMENT)
-                .read(getInputStream(filename), StandardCharsets.UTF_8);
+                .read(Utils.getInputStream(filename), StandardCharsets.UTF_8);
         assertEquals(0, ini1.getUntitledSection().countKeyAndComments());
         Section sectionA = ini1.get("Sec1");
         assertNull(sectionA.getDanglingText());
-        assertEquals(asList(danglingText, "Comment1 before key1"), sectionA.getCommentsBefore("key1"));
-        assertEquals(asList(danglingText, "Comment1 before key1"), sectionA.getComments());
+        Assertions.assertEquals(Utils.asList(danglingText, "Comment1 before key1"), sectionA.getCommentsBefore("key1"));
+        Assertions.assertEquals(Utils.asList(danglingText, "Comment1 before key1"), sectionA.getComments());
 
         Ini ini2 = new IniDeserializer().setDanglingTextOption(IniDeserializer.DanglingTextOptions.DROP)
-                .read(getInputStream(filename), StandardCharsets.UTF_8);
+                .read(Utils.getInputStream(filename), StandardCharsets.UTF_8);
         assertEquals(0, ini2.getUntitledSection().countKeyAndComments());
         Section sectionB = ini2.get("Sec1");
         assertNull(sectionB.getDanglingText());
-        assertEquals(asList("Comment1 before key1"), sectionB.getCommentsBefore("key1"));
-        assertEquals(asList("Comment1 before key1"), sectionB.getComments());
+        Assertions.assertEquals(Utils.asList("Comment1 before key1"), sectionB.getCommentsBefore("key1"));
+        Assertions.assertEquals(Utils.asList("Comment1 before key1"), sectionB.getComments());
 
         Ini ini3 = new IniDeserializer().setDanglingTextOption(IniDeserializer.DanglingTextOptions.KEEP)
-                .read(getInputStream(filename), StandardCharsets.UTF_8);
+                .read(Utils.getInputStream(filename), StandardCharsets.UTF_8);
         assertEquals(0, ini3.getUntitledSection().countKeyAndComments());
         Section sectionC = ini3.get("Sec1");
         assertEquals(danglingText, sectionC.getDanglingText());
-        assertEquals(asList("Comment1 before key1"), sectionC.getCommentsBefore("key1"));
-        assertEquals(asList("Comment1 before key1"), sectionC.getComments());
+        Assertions.assertEquals(Utils.asList("Comment1 before key1"), sectionC.getCommentsBefore("key1"));
+        Assertions.assertEquals(Utils.asList("Comment1 before key1"), sectionC.getComments());
     }
     
 }

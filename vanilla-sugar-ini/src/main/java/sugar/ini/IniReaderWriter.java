@@ -1,7 +1,7 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
 
-import xyz.udw.sugar.ini.exception.ReadWriteException;
+import sugar.ini.exception.ReadWriteException;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

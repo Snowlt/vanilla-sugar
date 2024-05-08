@@ -1,6 +1,6 @@
-package xyz.udw.sugar.ini;
+package sugar.ini;
 
-import xyz.udw.sugar.ini.exception.ReadWriteException;
+import sugar.ini.exception.ReadWriteException;
 
 import java.io.*;
 import java.nio.charset.Charset;
