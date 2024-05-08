@@ -133,9 +133,19 @@ class IniTest {
     }
 
     @Test
+    void getItemValue() {
+        Ini ini = getExampleIni();
+        assertEquals("value1", ini.getItemValue("sec1", "key1"));
+        assertEquals("value3", ini.getItemValue("sec2", "key3"));
+        assertNull(ini.getItemValue("sec1", "non-exist"));
+        assertNull(ini.getItemValue("sec2", "non-exist"));
+        assertNull(ini.getItemValue("non-exist-sec", "key1"));
+        assertNull(ini.getItemValue("non-exist-sec", "key3"));
+    }
+
+    @Test
     void untitledSection() {
         Ini ini = getExampleIni();
-        assertNotNull(ini);
         Section untitled = ini.getUntitledSection();
         assertNotNull(untitled);
         assertEquals(0, untitled.count());
