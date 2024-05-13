@@ -101,10 +101,10 @@ public class IniSerializer {
     /**
      * 将 INI 内容写出到 {@link Writer} 中
      *
-     * @param ini     要导出的 INI 对象
-     * @param writer  输出流
+     * @param ini    要导出的 INI 对象
+     * @param writer 输出流
      * @throws NullPointerException 如果 {@code ini} / {@code writer} 中含有 {@code null}
-     * @throws ReadWriteException 如果读取时发生IO异常
+     * @throws ReadWriteException   如果读取时发生IO异常
      */
     public void write(Ini ini, Writer writer) {
         try {
@@ -121,7 +121,7 @@ public class IniSerializer {
             }
             writer.flush();
         } catch (IOException e) {
-            throw new ReadWriteException("Error when serializing content", e);
+            throw new ReadWriteException("Error occurred when serializing content", e);
         }
     }
 
@@ -132,7 +132,7 @@ public class IniSerializer {
      * @param stream  输出流
      * @param charset 字符编码 {@link Charset}
      * @throws NullPointerException 如果 {@code ini} / {@code stream} / {@code charset} 中含有 {@code null}
-     * @throws ReadWriteException 如果读取时发生IO异常
+     * @throws ReadWriteException   如果读取时发生IO异常
      */
     public void write(Ini ini, OutputStream stream, Charset charset) {
         Objects.requireNonNull(ini);

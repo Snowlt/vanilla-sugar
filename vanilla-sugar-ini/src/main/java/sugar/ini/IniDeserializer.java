@@ -177,16 +177,16 @@ public class IniDeserializer {
     /**
      * 从 {@link Reader} 中读取 INI 内容
      *
-     * @param reader  输入流
+     * @param reader 输入流
      * @throws NullPointerException 如果 {@code reader} 为 {@code null}
-     * @throws ReadWriteException 如果读取时发生IO异常
+     * @throws ReadWriteException   如果读取时发生IO异常
      */
     public Ini read(Reader reader) {
         Ini ini = new Ini();
         try (BufferedReader br = new BufferedReader(reader)) {
             loadToIni(br, ini);
         } catch (IOException e) {
-            throw new ReadWriteException("Error when deserializing content", e);
+            throw new ReadWriteException("Error occurred when deserializing content", e);
         }
         return ini;
     }
@@ -197,7 +197,7 @@ public class IniDeserializer {
      * @param stream  输入流
      * @param charset 字符编码 {@link Charset}
      * @throws NullPointerException 如果 {@code stream} / {@code charset} 中含有 {@code null}
-     * @throws ReadWriteException 如果读取时发生IO异常
+     * @throws ReadWriteException   如果读取时发生IO异常
      */
     public Ini read(InputStream stream, Charset charset) {
         return read(new InputStreamReader(stream, charset));
@@ -239,7 +239,7 @@ public class IniDeserializer {
         if (!head.values.isEmpty()) {
             if (this.danglingTextOption == DanglingTextOptions.KEEP) {
                 sec.setDanglingText(head.joinValues());
-            }else if(this.danglingTextOption == DanglingTextOptions.TO_COMMENT){
+            } else if (this.danglingTextOption == DanglingTextOptions.TO_COMMENT) {
                 sec.addComments(Collections.singletonList(head.joinValues()));
             }
         }
