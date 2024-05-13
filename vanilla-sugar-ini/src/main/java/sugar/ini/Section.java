@@ -99,7 +99,7 @@ public class Section implements Iterable<Map.Entry<String, String>> {
         try {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new AccessValueException("Unable parse value to int for key \"" + key + "\"");
+            throw new AccessValueException("Unable to parse value of key \"" + key + "\" to int");
         }
     }
 
@@ -116,7 +116,7 @@ public class Section implements Iterable<Map.Entry<String, String>> {
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
-            throw new AccessValueException("Unable parse value to long for key \"" + key + "\"");
+            throw new AccessValueException("Unable to parse value of key \"" + key + "\" to long");
         }
     }
 
