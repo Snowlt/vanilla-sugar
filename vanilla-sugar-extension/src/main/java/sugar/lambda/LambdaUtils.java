@@ -5,10 +5,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -44,7 +41,8 @@ import java.util.function.BiConsumer;
  * </ul>
  * <p>
  * 请留意，在此工具类中传入的 Lambda 一定要使用<b>方法引用</b>（如：{@code Person::getFirstName}）
- * 而不是普通的 Lambda 表达式（如：{@code (Person p) -> p.geFirstName()}），否则无法正确解析出相关的 Class 信息。
+ * 而不是普通的 Lambda 表达式（如：{@code (Person p) -> p.geFirstName()}），且指向的 getter 方法必须为
+ * public，否则无法正确解析出相关的 Class 信息。
  * <p>对于需要用到 setter 方法的情况（如：{@link #swap(Object, LambdaGetter, LambdaGetter)} 等），
  * 需要的确保 Bean 对象中同时有 public 且符合命名规范的 getter / setter 方法。例如传入 {@code Person::getFirstName}
  * 工具类会尝试去查找 {@code Person} 类中 public 的 {@code setFirstName(...)} 方法，否则会抛出异常。
@@ -63,19 +61,21 @@ public class LambdaUtils {
     private static final Map<LambdaGetter<?, ?>, GetterInfo> LAMBDA_CACHE = new WeakHashMap<>();
 
     /**
-     * 通过方法引用，获取字段的所在的类的 {@link Class}。
-     * <p>例如传入 {@code Person::getFirstName}，则返回 {@code Class<Person>}。一般用于配合其他反射方法使用。
+     * 通过方法引用，获取声明 getter 方法的类。一般用于配合其他反射方法使用。
+     * <p>例如传入 {@code Person::getFirstName}，则返回 {@code Class<Person>}。
+     * <p>如果 getter 方法是从其他类中继承而来的，则返回实际的类。
      *
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
-     * @return 字段所在的类
-     * @throws UnsupportedOperationException 如果 Lambda 无法被解析，或不是方法引用则抛出
+     * @return  getter 方法所在的类
+     * @throws LambdaParseException 如果 Lambda 无法被解析，或不是方法引用则抛出
      * @see #findField(LambdaGetter, boolean)
      * @see #findSetterMethod(LambdaGetter)
      * @see #findGetterMethod(LambdaGetter)
      */
-    public static <T> Class<T> findClass(LambdaGetter<T, ?> getter) {
-        return getGetterInfo(getter).getSourceClass();
+    public static <T> Class<? super T> findDeclaredClass(LambdaGetter<T, ?> getter) {
+        GetterInfo info = getGetterInfo(getter);
+        return info.getDeclaredClass();
     }
 
     /**
@@ -85,7 +85,7 @@ public class LambdaUtils {
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link Field}
-     * @throws UnsupportedOperationException 在类中找不到对应字段，或 Lambda 不是方法引用
+     * @throws LambdaParseException 在类中找不到对应字段，或 Lambda 不是方法引用
      * @see #findField(LambdaGetter, boolean)
      */
     public static <T> Field findField(LambdaGetter<T, ?> getter) {
@@ -101,7 +101,8 @@ public class LambdaUtils {
      * @param getter     指向对象字段 getter 方法的方法引用
      * @param ignoreCase 设置为 true 时查找字段会尝试忽略大小写。
      * @return {@link Field}
-     * @throws UnsupportedOperationException 在类中找不到对应字段，或 Lambda 不是方法引用
+     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws NoSuchElementException 在类中找不到对应字段
      */
     public static <T> Field findField(LambdaGetter<T, ?> getter, boolean ignoreCase) {
         GetterInfo info = getGetterInfo(getter);
@@ -110,18 +111,18 @@ public class LambdaUtils {
         Field field = null;
         try {
             // 优先查找符合 getter / setter 命名规范的 field
-            field = info.getSourceClass().getDeclaredField(candidateName);
+            field = info.getDeclaredClass().getDeclaredField(candidateName);
         } catch (NoSuchFieldException ignored) {
             if (ignoreCase) {
-                field = Arrays.stream(info.getSourceClass().getDeclaredFields())
+                field = Arrays.stream(info.getDeclaredClass().getDeclaredFields())
                         .filter(f -> f.getName().equalsIgnoreCase(candidateName))
                         .findFirst().orElse(null);
             }
         }
         if (field != null) return field;
-        String message = String.format("Unable to find filed \"%s()\" by getter in class \"%s\"",
-                candidateName, info.getSourceClass().getName());
-        throw new UnsupportedOperationException(message);
+        String message = String.format("Unable to find filed \"%s\" by getter in class \"%s\"",
+                candidateName, info.getDeclaredClass().getName());
+        throw new NoSuchElementException(message);
     }
 
     /**
@@ -131,17 +132,18 @@ public class LambdaUtils {
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link Method}
-     * @throws UnsupportedOperationException 在类中找不到对应 getter，或 Lambda 不是方法引用
+     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws NoSuchElementException 在类中找不到对应 getter
      */
     public static <T> Method findGetterMethod(LambdaGetter<T, ?> getter) {
         GetterInfo info = getGetterInfo(getter);
-        Class<?> c = info.getSourceClass();
+        Class<?> c = info.getDeclaredClass();
         try {
-            return c.getDeclaredMethod(info.getMethodName());
+            return c.getMethod(info.getMethodName());
         } catch (NoSuchMethodException e) {
             String message = String.format("Unable to find getter method \"%s()\" in class \"%s\", " +
                     "lambda may be an expression rather than a method reference", info.getMethodName(), c.getName());
-            throw new UnsupportedOperationException(message);
+            throw new NoSuchElementException(message);
         }
     }
 
@@ -152,7 +154,8 @@ public class LambdaUtils {
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link Method}
-     * @throws UnsupportedOperationException 在类中找不到对应 setter，或 Lambda 不是方法引用
+     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws NoSuchElementException 在类中找不到对应 setter
      */
     public static <T> Method findSetterMethod(LambdaGetter<T, ?> getter) {
         return findSetterMethod(getter, false);
@@ -166,24 +169,25 @@ public class LambdaUtils {
      * @param getter      指向对象字段 getter 方法的方法引用
      * @param checkPublic 设置为 true 时会检查找到的 setter 方法是 public 的，否则按照找不到 setter 进行处理
      * @return {@link Method}
-     * @throws UnsupportedOperationException 在类中找不到对应 setter，或 Lambda 不是方法引用
+     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws NoSuchElementException 在类中找不到对应 setter
      */
     private static <T> Method findSetterMethod(LambdaGetter<T, ?> getter, boolean checkPublic) {
         GetterInfo info = getGetterInfo(getter);
-        Class<T> c = info.getSourceClass();
+        Class<T> c = info.getDeclaredClass();
         String setterName = predictSetterName(info.getMethodName());
         try {
-            Method method = c.getDeclaredMethod(setterName, info.getReturnType());
+            Method method = c.getMethod(setterName, info.getReturnType());
             if (checkPublic && !Modifier.isPublic(method.getModifiers())) {
                 String message = String.format("Setter method \"%s(%s)\" is not public in class \"%s\"",
                         setterName, info.getReturnType().getName(), c.getName());
-                throw new UnsupportedOperationException(message);
+                throw new NoSuchElementException(message);
             }
             return method;
         } catch (NoSuchMethodException e) {
             String message = String.format("Unable to find setter method \"%s(%s)\" in class \"%s\"",
                     setterName, info.getReturnType().getName(), c.getName());
-            throw new UnsupportedOperationException(message);
+            throw new NoSuchElementException(message);
         }
     }
 
@@ -208,7 +212,8 @@ public class LambdaUtils {
      * @param <V>    对象中的字段类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link BiConsumer}
-     * @throws UnsupportedOperationException 在类中找不到对应 setter，或 Lambda 不是方法引用
+     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws NoSuchElementException 在类中找不到对应 setter
      */
     public static <T, V> BiConsumer<T, V> findSetterAsConsumer(LambdaGetter<T, V> getter) {
         Method setterMethod = findSetterMethod(getter, false);
@@ -233,14 +238,15 @@ public class LambdaUtils {
      * p.toString() // -> "Person{firstName=Pearce, lastName=Aiden}"
      * }</pre>
      * <p>
-     * 当两个字段值相等时（内存指向相同，{@code getter1.invoke(obj) == getter2.invoke(obj)}），方法会跳过重新赋值的过程来提高速度。
+     * 当两个字段值相等时（内存指向相同，{@code getter1.invoke(obj) == getter2.invoke(obj)}），
+     * 方法会跳过查找方法或重新赋值的过程来提高速度。
      *
      * @param <T>     对象的类型
      * @param <V>     字段值的类型
      * @param object  对象
      * @param getter1 指向对象第一个字段 getter 方法的方法引用
      * @param getter2 指向对象第二个字段 getter 方法的方法引用
-     * @throws UnsupportedOperationException 在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
+     * @throws LambdaParseException 在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
      * @throws IllegalStateException         通过反射（调用 setter 方法）设置值遇到异常时抛出
      */
     public static <T, V> void swap(T object, LambdaGetter<T, V> getter1, LambdaGetter<T, V> getter2) {
@@ -268,7 +274,7 @@ public class LambdaUtils {
      * @param source the source
      * @param target the target
      * @param getter 指向对象字段 getter 方法的方法引用
-     * @throws UnsupportedOperationException 在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
+     * @throws LambdaParseException 在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
      * @throws IllegalStateException         通过反射（调用 setter 方法）设置值遇到异常时抛出
      */
     public static <T, V> void copyProperty(T source, T target, LambdaGetter<T, V> getter) {
@@ -290,6 +296,7 @@ public class LambdaUtils {
      * public enum OrderType {
      *      FIRST(1), SECOND(2);
      *      private final Integer order;
+     *      OrderType(Integer order) { this.order = order; }
      *      public Integer getOrder() { return this.order; }
      * }
      * parseEnumByField(OrderType::getOrder, 2)  // -> Order.SECOND
@@ -301,7 +308,7 @@ public class LambdaUtils {
      * @param getter 枚举中字段的 getter（方法引用）
      * @param value  字段的值
      * @return 如果找不到则返回 {@code other}
-     * @throws UnsupportedOperationException 如果 Lambda 指向的不是枚举类，或不是方法引用则抛出
+     * @throws LambdaParseException 如果 Lambda 指向的不是枚举类，或不是方法引用则抛出
      * @see #parseEnumByProperty(LambdaGetter, Object)
      */
     public static <E extends Enum<E>, V> E parseEnumByProperty(LambdaGetter<E, V> getter, V value) {
@@ -315,11 +322,14 @@ public class LambdaUtils {
      * public enum OrderType {
      *      FIRST(1), SECOND(2), THIRD(3), OTHERS(3);
      *      private final Integer order;
+     *      OrderType(Integer order) { this.order = order; }
      *      public Integer getOrder() { return this.order; }
      * }
      * parseEnumByField(OrderType::getOrder, 2, Order.OTHERS)  // -> Order.SECOND
      * parseEnumByField(OrderType::getOrder, -1, Order.OTHERS) // -> Order.OTHERS
      * }</pre>
+     * 由于 Java 的限制，传入的 getter 方法必须定义在枚举类中，不能从接口或 {@link Enum}
+     * 中继承。否则会无法正确解析枚举类信息，抛出异常。
      *
      * @param <E>          枚举类型
      * @param <V>          枚举中的字段类型
@@ -327,11 +337,15 @@ public class LambdaUtils {
      * @param value        字段的值
      * @param defaultValue 如果匹配不到枚举项则返回这个值替代
      * @return 如果找不到则返回 {@code defaultValue}
-     * @throws UnsupportedOperationException 如果 Lambda 指向的不是枚举类，或不是方法引用则抛出
+     * @throws LambdaParseException 如果 Lambda 指向的不是有效的枚举类，或不是方法引用则抛出
+     * @throws IllegalArgumentException 如果传入的 getter 方法无法解析出枚举类的信息则抛出
      */
+    @SuppressWarnings("unchecked")
     public static <E extends Enum<E>, V> E parseEnumByProperty(LambdaGetter<E, V> getter, V value, E defaultValue) {
-        E[] enumConstants = findClass(getter).getEnumConstants();
-        if (enumConstants == null) return defaultValue;
+        Class<E> enumClass = (Class<E>) findDeclaredClass(getter);
+        if (Enum.class.equals(enumClass)) throw new IllegalArgumentException("Lambda should not refer to method in "+ Enum.class.getName());
+        E[] enumConstants = enumClass.getEnumConstants();
+        if (enumConstants == null) throw new IllegalArgumentException("Class of declared getter is not enum");
         for (E e : enumConstants) {
             if (Objects.equals(getter.invoke(e), value)) return e;
         }
@@ -383,35 +397,60 @@ public class LambdaUtils {
     @SuppressWarnings("unchecked")
     static class GetterInfo {
         private final SerializedLambda serializedLambda;
-        private final Class<?> sourceClass;
+        private final Class<?> declaredClass;
         private final Class<?> returnType;
 
         GetterInfo(SerializedLambda serializedLambda) {
             this.serializedLambda = serializedLambda;
-            this.sourceClass = paresClass(serializedLambda);
-            this.returnType = parseReturnType(serializedLambda);
+            this.declaredClass = paresClass(serializedLambda);
+            this.returnType = parseReturnType(serializedLambda, this.declaredClass);
         }
 
         private Class<?> paresClass(SerializedLambda lambda) {
             try {
                 return Class.forName(lambda.getImplClass().replace('/', '.'));
             } catch (ClassNotFoundException e) {
-                throw new UnsupportedOperationException("Unable to get target class of method reference");
+                throw new LambdaParseException("Unable to get target class of method reference");
             }
         }
 
-        private Class<?> parseReturnType(SerializedLambda lambda) {
+        private Class<?> parseReturnType(SerializedLambda lambda, Class<?> sourceClass) {
             String methodSignature = lambda.getImplMethodSignature();
+            // primitive types, see Class.getName()
+            switch (methodSignature) {
+                case "()Z":
+                    return boolean.class;
+                case "()C":
+                    return char.class;
+                case "()D":
+                    return double.class;
+                case "()F":
+                    return float.class;
+                case "()I":
+                    return int.class;
+                case "()J":
+                    return long.class;
+                case "()S":
+                    return short.class;
+                case "()B":
+                    return byte.class;
+                default:
+            }
             // text likes: "()Ljava/lang/Object;"
-            int i = methodSignature.indexOf(")L");
-            if (i > 0) {
-                String typeName = methodSignature.substring(i + 2, methodSignature.length() - 1).replace('/', '.');
+            int i = methodSignature.indexOf("()L");
+            if (i >= 0) {
+                String typeName = methodSignature.substring(i + 3, methodSignature.length() - 1).replace('/', '.');
                 try {
                     return Class.forName(typeName);
                 } catch (ClassNotFoundException ignored) {
                 }
             }
-            throw new UnsupportedOperationException("Unable to find method, lambda may be an expression rather than a method reference");
+            try {
+                return sourceClass.getMethod(lambda.getImplMethodName()).getReturnType();
+            } catch (NoSuchMethodException ignored) {
+            }
+            throw new LambdaParseException("Unable to parse getter. " +
+                    "Lambda may be an expression rather than a method reference, or getter is not public");
         }
 
         public SerializedLambda getSerializedLambda() {
@@ -422,8 +461,8 @@ public class LambdaUtils {
             return serializedLambda.getImplMethodName();
         }
 
-        public <T> Class<T> getSourceClass() {
-            return (Class<T>) sourceClass;
+        public <T> Class<T> getDeclaredClass() {
+            return (Class<T>) declaredClass;
         }
 
         public <T> Class<T> getReturnType() {
