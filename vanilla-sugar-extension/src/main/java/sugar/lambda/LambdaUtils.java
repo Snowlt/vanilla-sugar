@@ -67,7 +67,7 @@ public class LambdaUtils {
      *
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
-     * @return  getter 方法所在的类
+     * @return getter 方法所在的类
      * @throws LambdaParseException 如果 Lambda 无法被解析，或不是方法引用则抛出
      * @see #findField(LambdaGetter, boolean)
      * @see #findSetterMethod(LambdaGetter)
@@ -101,7 +101,7 @@ public class LambdaUtils {
      * @param getter     指向对象字段 getter 方法的方法引用
      * @param ignoreCase 设置为 true 时查找字段会尝试忽略大小写。
      * @return {@link Field}
-     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws LambdaParseException   Lambda 不是方法引用或无法解析
      * @throws NoSuchElementException 在类中找不到对应字段
      */
     public static <T> Field findField(LambdaGetter<T, ?> getter, boolean ignoreCase) {
@@ -132,7 +132,7 @@ public class LambdaUtils {
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link Method}
-     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws LambdaParseException   Lambda 不是方法引用或无法解析
      * @throws NoSuchElementException 在类中找不到对应 getter
      */
     public static <T> Method findGetterMethod(LambdaGetter<T, ?> getter) {
@@ -154,7 +154,7 @@ public class LambdaUtils {
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link Method}
-     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws LambdaParseException   Lambda 不是方法引用或无法解析
      * @throws NoSuchElementException 在类中找不到对应 setter
      */
     public static <T> Method findSetterMethod(LambdaGetter<T, ?> getter) {
@@ -169,7 +169,7 @@ public class LambdaUtils {
      * @param getter      指向对象字段 getter 方法的方法引用
      * @param checkPublic 设置为 true 时会检查找到的 setter 方法是 public 的，否则按照找不到 setter 进行处理
      * @return {@link Method}
-     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws LambdaParseException   Lambda 不是方法引用或无法解析
      * @throws NoSuchElementException 在类中找不到对应 setter
      */
     private static <T> Method findSetterMethod(LambdaGetter<T, ?> getter, boolean checkPublic) {
@@ -212,7 +212,7 @@ public class LambdaUtils {
      * @param <V>    对象中的字段类型
      * @param getter 指向对象字段 getter 方法的方法引用
      * @return {@link BiConsumer}
-     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @throws LambdaParseException   Lambda 不是方法引用或无法解析
      * @throws NoSuchElementException 在类中找不到对应 setter
      */
     public static <T, V> BiConsumer<T, V> findSetterAsConsumer(LambdaGetter<T, V> getter) {
@@ -246,8 +246,9 @@ public class LambdaUtils {
      * @param object  对象
      * @param getter1 指向对象第一个字段 getter 方法的方法引用
      * @param getter2 指向对象第二个字段 getter 方法的方法引用
-     * @throws LambdaParseException 在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
-     * @throws IllegalStateException         通过反射（调用 setter 方法）设置值遇到异常时抛出
+     * @throws LambdaParseException     在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
+     * @throws IllegalStateException    通过反射（调用 setter 方法）设置值遇到异常时抛出
+     * @throws IllegalArgumentException {@code getter1} / {@code getter2} 返回类型不一致或包含 {@code null} 时抛出
      */
     public static <T, V> void swap(T object, LambdaGetter<T, V> getter1, LambdaGetter<T, V> getter2) {
         if (getter1 == null || getter2 == null) throw new IllegalArgumentException();
@@ -256,7 +257,14 @@ public class LambdaUtils {
         V v2 = getter2.invoke(object);
         if (v1 == v2) return;
         Method setterMethod1 = findSetterMethod(getter1, true);
+        GetterInfo getterInfo1 = getGetterInfo(getter1);
         Method setterMethod2 = findSetterMethod(getter2, true);
+        GetterInfo getterInfo2 = getGetterInfo(getter2);
+        // 提前校验两个 getter 的返回类型是否相同。命中缓存能节省了重新解析 getter 的时间
+        if (getterInfo1.getReturnType() != getterInfo2.getReturnType())
+            throw new IllegalArgumentException(String.format("%s.%s() and %s.%s() have different return type",
+                    getterInfo1.getDeclaredClass().getSimpleName(), getterInfo1.getMethodName(),
+                    getterInfo2.getDeclaredClass().getSimpleName(), getterInfo2.getMethodName()));
         try {
             setterMethod1.invoke(object, v2);
             setterMethod2.invoke(object, v1);
@@ -274,8 +282,8 @@ public class LambdaUtils {
      * @param source the source
      * @param target the target
      * @param getter 指向对象字段 getter 方法的方法引用
-     * @throws LambdaParseException 在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
-     * @throws IllegalStateException         通过反射（调用 setter 方法）设置值遇到异常时抛出
+     * @throws LambdaParseException  在类中找不到对应 setter，或 Lambda 不是方法引用时抛出
+     * @throws IllegalStateException 通过反射（调用 setter 方法）设置值遇到异常时抛出
      */
     public static <T, V> void copyProperty(T source, T target, LambdaGetter<T, V> getter) {
         if (getter == null) throw new IllegalArgumentException();
@@ -337,13 +345,14 @@ public class LambdaUtils {
      * @param value        字段的值
      * @param defaultValue 如果匹配不到枚举项则返回这个值替代
      * @return 如果找不到则返回 {@code defaultValue}
-     * @throws LambdaParseException 如果 Lambda 指向的不是有效的枚举类，或不是方法引用则抛出
+     * @throws LambdaParseException     如果 Lambda 指向的不是有效的枚举类，或不是方法引用则抛出
      * @throws IllegalArgumentException 如果传入的 getter 方法无法解析出枚举类的信息则抛出
      */
     @SuppressWarnings("unchecked")
     public static <E extends Enum<E>, V> E parseEnumByProperty(LambdaGetter<E, V> getter, V value, E defaultValue) {
         Class<E> enumClass = (Class<E>) findDeclaredClass(getter);
-        if (Enum.class.equals(enumClass)) throw new IllegalArgumentException("Lambda should not refer to method in "+ Enum.class.getName());
+        if (Enum.class.equals(enumClass))
+            throw new IllegalArgumentException("Lambda should not refer to method in " + Enum.class.getName());
         E[] enumConstants = enumClass.getEnumConstants();
         if (enumConstants == null) throw new IllegalArgumentException("Class of declared getter is not enum");
         for (E e : enumConstants) {
