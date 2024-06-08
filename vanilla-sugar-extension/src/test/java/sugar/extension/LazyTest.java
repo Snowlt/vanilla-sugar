@@ -1,9 +1,8 @@
-package sugar.tool.extension;
+package sugar.extension;
 
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.logging.Logger;
 import org.junit.platform.commons.logging.LoggerFactory;
-import sugar.extension.Lazy;
 
 import java.util.ArrayList;
 import java.util.List;
