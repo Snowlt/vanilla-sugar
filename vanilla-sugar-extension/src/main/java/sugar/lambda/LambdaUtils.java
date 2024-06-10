@@ -64,6 +64,11 @@ public class LambdaUtils {
      * 通过方法引用，获取声明 getter 方法的类。一般用于配合其他反射方法使用。
      * <p>例如传入 {@code Person::getFirstName}，则返回 {@code Class<Person>}。
      * <p>如果 getter 方法是从其他类中继承而来的，则返回实际的类。
+     * <p>例如以下代码：<pre>{@code
+     * public class BaseData { public String getDemo() { return "demo"; } }
+     * public class SubData extends BaseData{ }
+     * }</pre>
+     * 传入 {@code SubData::getDemo}，实际返回的是 {@code Class<BaseData>}。
      *
      * @param <T>    对象的类型
      * @param getter 指向对象字段 getter 方法的方法引用
@@ -310,6 +315,8 @@ public class LambdaUtils {
      * parseEnumByField(OrderType::getOrder, 2)  // -> Order.SECOND
      * parseEnumByField(OrderType::getOrder, -1) // -> null
      * }</pre>
+     * 由于 Java 的限制，传入的 getter 方法必须定义在枚举类中，不能从接口或 {@link Enum}
+     * 中继承。否则会无法正确解析枚举类信息，抛出异常。
      *
      * @param <E>    枚举类型
      * @param <V>    枚举中的字段类型
