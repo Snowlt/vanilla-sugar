@@ -232,6 +232,21 @@ public class LambdaUtils {
     }
 
     /**
+     * 通过方法引用，获取 getter 方法的方法名。
+     * <p>例如传入 {@code Person::getFirstName}，则返回 {@code "getFirstName"}。等效于使用
+     * {@code findGetterMethod(...).getName()}，但这个方法会更快。
+     *
+     * @param <T>    对象的类型
+     * @param getter 指向对象字段 getter 方法的方法引用
+     * @return 方法名
+     * @throws LambdaParseException Lambda 不是方法引用或无法解析
+     * @see #findGetterMethod(LambdaGetter)
+     */
+    public static <T> String getMethodName(LambdaGetter<T, ?> getter) {
+        return getGetterInfo(getter).getMethodName();
+    }
+
+    /**
      * 交换对象中同类型的两个字段的，要交换的两个字段通过向 {@code getter1} / {@code getter2} 传入方法引用来指定。
      * <p>工具类会自动解析 getter 的名称并查找对应的 setter 方法，并通过反射机制重新设置字段的值进行调用，并不会做类型转换工作。
      * <p> 例如：<pre>{@code
