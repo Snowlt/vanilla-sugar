@@ -95,6 +95,9 @@ Vanilla Sugar Toolkit 按照用途拆分为了以下模块，可按需求单独�
         # 2 install vanilla-sugar-function
         cd ../vanilla-sugar-function
         mvn install -Dmaven.test.skip=true
+        # 3 install vanilla-sugar-ini
+        cd ../vanilla-sugar-ini
+        mvn install -Dmaven.test.skip=true
         ```
     3. 引入依赖
 
@@ -109,6 +112,11 @@ Vanilla Sugar Toolkit 按照用途拆分为了以下模块，可按需求单独�
             <dependency>
                 <groupId>xyz.udw</groupId>
                 <artifactId>vanilla-sugar-function</artifactId>
+                <version>1.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>xyz.udw</groupId>
+                <artifactId>vanilla-sugar-ini</artifactId>
                 <version>1.0</version>
             </dependency>
         </dependencies>
