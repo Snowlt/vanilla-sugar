@@ -46,9 +46,13 @@ port = 3306
 
 ### 快速开始
 
-*vanilla-sugar-ini* 提供了 `Ini` 类用于表示一个 INI 文件，一个 `Ini` 中有多个区块。而一个区块则封装为了 `Section` 类，可以读写区块内的键值对和注释。
+*vanilla-sugar-ini* 提供了两个核心类：
 
-`IniReaderWriter` 类作为快捷操作的入口，提供了一些用于文件读写的静态方法。
+- `Ini`: 表示一个 INI 文件的内容（内部包含了多个区块），提供了编辑区块的方法
+
+- `Section`: 表示一个区块中的内容，提供了编辑键值对和注释的方法
+
+若要简单地从文件读写，`IniReaderWriter` 类作为快捷操作的入口，提供了一些静态方法：
 
 - `Ini loadFromFile(String path)`: 传入文件路径，读取文件内容并解析为一个 `INI` 对象。
 
@@ -68,18 +72,16 @@ section.set("bb", "2.0");
 IniReaderWriter.saveToFile(ini, "test.ini", StandardCharsets.UTF_8);
 ```
 
+如果需要一些更细致的 IO 流读写功能，可以使用 `IniDeserializer` 和 `IniSerializer` 类。
+
 ### 编辑内容
 
 `Ini` 类内部存储了区块的数据，也是读写、编辑 INI 内容的入口。常用的方法如下：
 
 - `Ini()` 构造器: 构造一个 INI 对象
-
 - `get(String)`: 获取此 INI 中的指定区块（一般操作的时间复杂度为 *O(1)* ）
-
 - `getOrAdd(String)`: 获取此 INI 中的指定区块，如果指定的区块不存在，则先创建再返回区块
-
 - `remove(String)`: 移除指定区块
-
 - `getSectionNames()`: 获取所有的区块名
 
 `Section` 类存储了单个区块内的键值对、注释等数据。由于一个区块是与 INI 文件一一对应的，故 `Section` 对象不能直接通过 `new` 实例化，而是需要从一个 `Ini` 对象上获取（例如 `getOrAdd` 方法）。
@@ -90,10 +92,13 @@ IniReaderWriter.saveToFile(ini, "test.ini", StandardCharsets.UTF_8);
 - `getAsInt(String)` / `getAsBool(String)`: 通过键名获取对应的值并转为特定基本类型
 - `set(String, String)`: 添加新的键值对，如果已有相同键名则会覆盖
 - `remove(String)`: 移除键值对
+- `rename(String, String)`: 将键值对重命名（但不改变顺序）
 - `count()`: 获取此区块键值对的总数
 - `getKeys()`: 获取所有的键名
 - `addComments(Collection<String>)`: 添加注释
 - `getCommentsBefore(String)` / `getCommentsAfter(String)`: 获取指定键名之前/之后的注释
+
+_大多数情况下 `get` 和 `set` 方法的时间复杂度都可以视为 *O(1)*，在键值对数量不多时可以直接将 `Section` 当作 Java 的 Map 使用。_
 
 示例代码：
 
@@ -172,7 +177,7 @@ serializer.write(ini, writer);
 
 对于连续编辑多个键值对、注释的情况，*vanilla-sugar-ini* 提供了链式操作 API。在 `Ini` 对象上调用 `chainAccess()` 方法会返回一个链式访问器，用法如下：
 
-1. 接着借助 `openSection(String)` 可以切换到某个特定区块中操作；
+1. 使用 `openSection(String)` 可以切换到某个特定区块中操作；
 
 2. 使用 `set(String key, String)` / `addComment(String comment)` 等方法可以编辑区块内容；
 
@@ -213,7 +218,7 @@ c=3
 
 ### 操作无标题区块
 
-有时可能会遇到一些特殊的 INI 文件，其中文件头部没有出现任何区块头部，而是直接出现内容。例如以下的文件中，`project` 区块前还有三行内容：
+有时一些特殊的 INI 文件中，文件头部没有出现任何区块头部，而是直接出现内容。例如以下的示例文件中，`project` 区块头上方还有三行内容：
 
 ```ini
 ; special content
@@ -247,7 +252,7 @@ key3=789
 
 对于处于区块开头的非标准内容（例如 `Line 1 ...`），在解析时由 `IniDeserializer` 类的 `setDanglingTextOption(DanglingTextOptions)` 方法决定如何处理。默认的行为是 `KEEP`（保留），这一行数据也会被存入 `Section` 对象中，通过 `getDanglingText()` 方法可以获取到。
 
-例如，对于示例的 INI 文件内容，解析后 `Ini` 对象示例如下：
+以下是一份针对示例 INI 文件内容的样例代码，解析后 `Ini` 对象内容如下：
 
 ```java
 Ini ini; // 解析示例后生成的 Ini 对象
@@ -262,8 +267,8 @@ demo2.getDanglingText(); // 返回 null
 
 ## 额外说明
 
-考虑到 INI 文件的使用场景，*vanilla-sugar-ini* 做了一些针对性处理/优化，以下一些使用时可能要留意的地方：
+考虑到 INI 文件的使用场景，*vanilla-sugar-ini* 做了一些针对性处理，以下是一些使用时可能需留意的地方：
 
-1. INI 的内容（键值对以及注释）的顺序可能也是具有作用的，故 `Ini` 和 `Section` 对象都会维护插入顺序
+1. INI 内容（键值对以及注释）的顺序可能也是具有作用的，故 `Ini` 和 `Section` 对象都会维护插入顺序
 
 2. 所有的类型都是非线程安全的，如果需要跨线程操作同一个对象，请务必要加上读写锁
