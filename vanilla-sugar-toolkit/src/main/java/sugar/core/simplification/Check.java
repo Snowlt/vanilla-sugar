@@ -408,6 +408,29 @@ public class Check {
     }
 
     /**
+     * 判断是否有任意一个值不等效于 true
+     * <pre>
+     *     anyNotTrue(值1, 值2, ...)
+     *     等同于： notTrueTrue(值1) || notTrueTrue(值2) || ...
+     * 例如：
+     *     Check.anyNotTrue(1, 2.0, 'A') // -> true
+     *     Check.anyNotTrue(null, 0, "", 1) // -> true
+     *     Check.anyNotTrue(null, 0, "")    // -> false
+     * </pre>
+     *
+     * @param targets 要判断的值
+     * @return 有任意一个值等效于 true 时返回 true
+     * @see #notTrue(Object)
+     */
+    public static boolean anyNotTrue(Object... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (Object condition : targets) {
+            if (notTrue(condition)) return true;
+        }
+        return false;
+    }
+
+    /**
      * 判断所有值是否都不等效于 true
      * <pre>
      *     noneTrue(值1, 值2, ...)
@@ -462,6 +485,26 @@ public class Check {
         if (targets == null || targets.length == 0) return false;
         for (Object condition : targets) {
             if (condition == null) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否有任意一个值不等效于 null
+     * <pre>
+     * 例如：
+     *     anyNotNull(0, 'A', "")       // -> true
+     *     anyNotNull(null, 0, null)    // -> true
+     *     anyNotNull(null, null, null) // -> false
+     * </pre>
+     *
+     * @param targets 判断的对象
+     * @return 有任意对象不为 null 时返回 true
+     */
+    public static boolean anyNotNull(Object... targets) {
+        if (targets == null || targets.length == 0) return false;
+        for (Object condition : targets) {
+            if (condition != null) return true;
         }
         return false;
     }

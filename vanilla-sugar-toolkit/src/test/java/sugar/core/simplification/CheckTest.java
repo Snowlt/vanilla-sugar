@@ -151,6 +151,13 @@ class CheckTest {
         assertFalse(Check.anyTrue(0, false, "", null, new ArrayList<>(), new int[0]));
         assertFalse(Check.anyTrue());
         assertFalse(Check.anyTrue((Object[]) null));
+        // any not
+        assertTrue(Check.anyNotTrue(false));
+        assertTrue(Check.anyNotTrue(false, new Object()));
+        assertTrue(Check.anyNotTrue(1, true, ""));
+        assertFalse(Check.anyNotTrue(1, true, "1", Collections.singletonList(1), new int[]{1}));
+        assertFalse(Check.anyNotTrue());
+        assertFalse(Check.anyNotTrue((Object[]) null));
         // none
         assertTrue(Check.noneTrue(0, false, "", null, new ArrayList<>(), new int[0]));
         assertTrue(Check.noneTrue((Object) null));
@@ -177,6 +184,14 @@ class CheckTest {
         assertFalse(Check.anyNull((Object[]) null));
         assertFalse(Check.anyNull(true, 0));
         assertFalse(Check.anyNull(false, false, 1));
+        // any not
+        assertTrue(Check.anyNotNull(true, 0));
+        assertTrue(Check.anyNotNull(0, false, ""));
+        assertTrue(Check.anyNotNull(null, 0, false, ""));
+        assertFalse(Check.anyNotNull());
+        assertFalse(Check.anyNotNull((Object[]) null));
+        assertFalse(Check.anyNotNull((Object) null));
+        assertFalse(Check.anyNotNull(null, null, null));
         // none
         assertFalse(Check.noneNull((Object) null));
         assertFalse(Check.noneNull(null, null, null));
